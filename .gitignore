@@ -4,6 +4,7 @@
 *.swp
 *.swo
 *~
+*.mvn
 
 *.log
 logs/
