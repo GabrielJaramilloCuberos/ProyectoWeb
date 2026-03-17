@@ -30,8 +30,8 @@ CREATE TABLE usuario (
 CREATE TABLE zona (
     id_zona     BIGSERIAL PRIMARY KEY,
     nombre      VARCHAR(150) NOT NULL,
-    descripcion TEXT,
-    tipo        VARCHAR(100),
+    descripcion TEXT NOT NULL,
+    tipo        VARCHAR(100) NOT NULL,
     activa      BOOLEAN      NOT NULL DEFAULT TRUE
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE turno (
     hora_inicio           TIME         NOT NULL,
     hora_fin              TIME         NOT NULL,
     estado                VARCHAR(50)  NOT NULL,
-    limpieza_calificacion INTEGER,
+    limpieza_calificacion INTEGER NOT NULL,
     id_docente            BIGINT       NOT NULL,
     id_zona               BIGINT       NOT NULL,
     CONSTRAINT fk_turno_docente FOREIGN KEY (id_docente) REFERENCES usuario(id_usuario),
@@ -57,7 +57,7 @@ CREATE TABLE turno (
 CREATE TABLE checkpoint (
     id_checkpoint   BIGSERIAL PRIMARY KEY,
     nombre          VARCHAR(150) NOT NULL,
-    codigo_qr       VARCHAR(255),
+    codigo_qr       VARCHAR(255) NOT NULL,
     id_zona         BIGINT       NOT NULL,
     CONSTRAINT fk_checkpoint_zona FOREIGN KEY (id_zona) REFERENCES zona(id_zona)
 );
@@ -143,7 +143,7 @@ CREATE TABLE tipo_incidente (
 CREATE TABLE severidad (
     id_severidad    BIGSERIAL PRIMARY KEY,
     codigo          VARCHAR(50)  NOT NULL,
-    descripcion     TEXT
+    descripcion     TEXT NOT NULL
 );
 
 -- ========================

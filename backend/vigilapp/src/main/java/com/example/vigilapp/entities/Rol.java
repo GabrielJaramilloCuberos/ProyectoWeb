@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Entity
@@ -16,6 +17,7 @@ public class Rol{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_rol;
 
+    @NotBlank(message = "El nombre del rol es obligatorio")
     private String nombre;
 
 }

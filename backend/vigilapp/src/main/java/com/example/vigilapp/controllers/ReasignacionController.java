@@ -1,7 +1,10 @@
 package com.example.vigilapp.controllers;
 
 import com.example.vigilapp.entities.Reasignacion;
+import com.example.vigilapp.exception.ReasignacionNotFoundException;
 import com.example.vigilapp.repositories.ReasignacionRepository;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -17,41 +20,47 @@ public class ReasignacionController {
     }
 
     @GetMapping
-    public List<Reasignacion> getAll() {
-        return reasignacionRepository.findAll();
+    public ResponseEntity<List<Reasignacion>> getAll() {
+        List<Reasignacion> reasignaciones = reasignacionRepository.findAll();
+        if (reasignaciones.isEmpty()) {
+            throw new ReasignacionNotFoundException("No se encontraron reasignaciones");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(reasignaciones);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Reasignacion> getById(@PathVariable Long id) {
-        return reasignacionRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Reasignacion reasignacion = reasignacionRepository.findById(id)
+                .orElseThrow(() -> new ReasignacionNotFoundException("Reasignación no encontrada con id: " + id));
+        return ResponseEntity.status(HttpStatus.OK).body(reasignacion);
     }
 
     @PostMapping
-    public Reasignacion create(@RequestBody Reasignacion reasignacion) {
-        return reasignacionRepository.save(reasignacion);
+    public ResponseEntity<Reasignacion> create(@Valid @RequestBody Reasignacion reasignacion) {
+        Reasignacion created = reasignacionRepository.save(reasignacion);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Reasignacion> update(@PathVariable Long id, @RequestBody Reasignacion reasignacion) {
-        return reasignacionRepository.findById(id).map(existing -> {
-            existing.setMotivo(reasignacion.getMotivo());
-            existing.setFecha_propuesta(reasignacion.getFecha_propuesta());
-            existing.setFecha_respuesta(reasignacion.getFecha_respuesta());
-            existing.setEstado(reasignacion.getEstado());
-            existing.setTurno(reasignacion.getTurno());
-            existing.setDocenteOriginal(reasignacion.getDocenteOriginal());
-            existing.setDocentePropuesto(reasignacion.getDocentePropuesto());
-            return ResponseEntity.ok(reasignacionRepository.save(existing));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Reasignacion> update(@PathVariable Long id, @Valid @RequestBody Reasignacion reasignacion) {
+        Reasignacion existing = reasignacionRepository.findById(id)
+                .orElseThrow(() -> new ReasignacionNotFoundException("Reasignación no encontrada con id: " + id));
+        existing.setMotivo(reasignacion.getMotivo());
+        existing.setFecha_propuesta(reasignacion.getFecha_propuesta());
+        existing.setFecha_respuesta(reasignacion.getFecha_respuesta());
+        existing.setEstado(reasignacion.getEstado());
+        existing.setTurno(reasignacion.getTurno());
+        existing.setDocenteOriginal(reasignacion.getDocenteOriginal());
+        existing.setDocentePropuesto(reasignacion.getDocentePropuesto());
+        Reasignacion updated = reasignacionRepository.save(existing);
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return reasignacionRepository.findById(id).map(existing -> {
-            reasignacionRepository.delete(existing);
-            return ResponseEntity.ok().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
+        Reasignacion existing = reasignacionRepository.findById(id)
+                .orElseThrow(() -> new ReasignacionNotFoundException("Reasignación no encontrada con id: " + id));
+        reasignacionRepository.delete(existing);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

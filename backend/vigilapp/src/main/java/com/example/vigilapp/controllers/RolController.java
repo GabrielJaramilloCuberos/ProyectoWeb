@@ -1,7 +1,12 @@
 package com.example.vigilapp.controllers;
 
 import com.example.vigilapp.entities.Rol;
+import com.example.vigilapp.exception.RolNotFoundException;
 import com.example.vigilapp.repositories.RolRepository;
+
+import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -17,35 +22,42 @@ public class RolController {
     }
 
     @GetMapping
-    public List<Rol> getAll() {
-        return rolRepository.findAll();
+    public ResponseEntity<List<Rol>> getAll() {
+        List<Rol> roles = rolRepository.findAll();
+        if (roles.isEmpty()) {
+            throw new RolNotFoundException("No se encontraron roles");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(roles);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Rol> getById(@PathVariable Long id) {
-        return rolRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Rol rol = rolRepository.findById(id)
+                .orElseThrow(() -> new RolNotFoundException("Rol no encontrado con id: " + id));
+        return ResponseEntity.status(HttpStatus.OK).body(rol);
     }
 
     @PostMapping
-    public Rol create(@RequestBody Rol rol) {
-        return rolRepository.save(rol);
+    public ResponseEntity<Rol> create(@Valid @RequestBody Rol rol) {
+        Rol created = rolRepository.save(rol);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+
     @PutMapping("/{id}")
-    public ResponseEntity<Rol> update(@PathVariable Long id, @RequestBody Rol rol) {
-        return rolRepository.findById(id).map(existing -> {
-            existing.setNombre(rol.getNombre());
-            return ResponseEntity.ok(rolRepository.save(existing));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Rol> update(@PathVariable Long id, @Valid @RequestBody Rol rol) {
+        Rol existing = rolRepository.findById(id)
+                .orElseThrow(() -> new RolNotFoundException("Rol no encontrado con id: " + id));
+        existing.setNombre(rol.getNombre());
+        Rol updated = rolRepository.save(existing);
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return rolRepository.findById(id).map(existing -> {
-            rolRepository.delete(existing);
-            return ResponseEntity.ok().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
+        Rol existing = rolRepository.findById(id)
+                .orElseThrow(() -> new RolNotFoundException("Rol no encontrado con id: " + id));
+        rolRepository.delete(existing);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

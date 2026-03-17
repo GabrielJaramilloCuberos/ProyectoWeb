@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Entity
@@ -15,6 +16,9 @@ public class Severidad {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_severidad;
 
+    @NotBlank(message = "El código de severidad es obligatorio")
     private String codigo;
+
+    @NotBlank(message = "La descripción de severidad es obligatoria")
     private String descripcion;
 }
