@@ -1,7 +1,10 @@
 package com.example.vigilapp.controllers;
 
 import com.example.vigilapp.entities.Checkpoint;
+import com.example.vigilapp.exception.CheckpointNotFoundException;
 import com.example.vigilapp.repositories.CheckpointRepository;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -17,37 +20,43 @@ public class CheckpointController {
     }
 
     @GetMapping
-    public List<Checkpoint> getAll() {
-        return checkpointRepository.findAll();
+    public ResponseEntity<List<Checkpoint>> getAll() {
+        List<Checkpoint> checkpoints = checkpointRepository.findAll();
+        if (checkpoints.isEmpty()) {
+            throw new CheckpointNotFoundException("No se encontraron checkpoints");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(checkpoints);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Checkpoint> getById(@PathVariable Long id) {
-        return checkpointRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Checkpoint checkpoint = checkpointRepository.findById(id)
+                .orElseThrow(() -> new CheckpointNotFoundException("Checkpoint no encontrado con id: " + id));
+        return ResponseEntity.status(HttpStatus.OK).body(checkpoint);
     }
 
     @PostMapping
-    public Checkpoint create(@RequestBody Checkpoint checkpoint) {
-        return checkpointRepository.save(checkpoint);
+    public ResponseEntity<Checkpoint> create(@Valid @RequestBody Checkpoint checkpoint) {
+        Checkpoint created = checkpointRepository.save(checkpoint);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Checkpoint> update(@PathVariable Long id, @RequestBody Checkpoint checkpoint) {
-        return checkpointRepository.findById(id).map(existing -> {
-            existing.setNombre(checkpoint.getNombre());
-            existing.setCodigo_qr(checkpoint.getCodigo_qr());
-            existing.setZona(checkpoint.getZona());
-            return ResponseEntity.ok(checkpointRepository.save(existing));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Checkpoint> update(@PathVariable Long id, @Valid @RequestBody Checkpoint checkpoint) {
+        Checkpoint existing = checkpointRepository.findById(id)
+                .orElseThrow(() -> new CheckpointNotFoundException("Checkpoint no encontrado con id: " + id));
+        existing.setNombre(checkpoint.getNombre());
+        existing.setCodigo_qr(checkpoint.getCodigo_qr());
+        existing.setZona(checkpoint.getZona());
+        Checkpoint updated = checkpointRepository.save(existing);
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return checkpointRepository.findById(id).map(existing -> {
-            checkpointRepository.delete(existing);
-            return ResponseEntity.ok().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
+        Checkpoint existing = checkpointRepository.findById(id)
+                .orElseThrow(() -> new CheckpointNotFoundException("Checkpoint no encontrado con id: " + id));
+        checkpointRepository.delete(existing);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

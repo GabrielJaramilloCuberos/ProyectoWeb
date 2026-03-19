@@ -1,7 +1,10 @@
 package com.example.vigilapp.controllers;
 
 import com.example.vigilapp.entities.Zona;
+import com.example.vigilapp.exception.ZonaNotFoundException;
 import com.example.vigilapp.repositories.ZonaRepository;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -17,32 +20,44 @@ public class ZonaController {
     }
 
     @GetMapping
-    public List<Zona> getAll() { return zonaRepository.findAll(); }
+    public ResponseEntity<List<Zona>> getAll() {
+        List<Zona> zonas = zonaRepository.findAll();
+        if (zonas.isEmpty()) {
+            throw new ZonaNotFoundException("No se encontraron zonas");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(zonas);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Zona> getById(@PathVariable Long id) {
-        return zonaRepository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        Zona zona = zonaRepository.findById(id)
+                .orElseThrow(() -> new ZonaNotFoundException("Zona no encontrada con id: " + id));
+        return ResponseEntity.status(HttpStatus.OK).body(zona);
     }
 
     @PostMapping
-    public Zona create(@RequestBody Zona zona) { return zonaRepository.save(zona); }
+    public ResponseEntity<Zona> create(@Valid @RequestBody Zona zona) {
+        Zona created = zonaRepository.save(zona);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Zona> update(@PathVariable Long id, @RequestBody Zona zona) {
-        return zonaRepository.findById(id).map(existing -> {
-            existing.setNombre(zona.getNombre());
-            existing.setDescripcion(zona.getDescripcion());
-            existing.setTipo(zona.getTipo());
-            existing.setActiva(zona.getActiva());
-            return ResponseEntity.ok(zonaRepository.save(existing));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Zona> update(@PathVariable Long id, @Valid @RequestBody Zona zona) {
+        Zona existing = zonaRepository.findById(id)
+                .orElseThrow(() -> new ZonaNotFoundException("Zona no encontrada con id: " + id));
+        existing.setNombre(zona.getNombre());
+        existing.setDescripcion(zona.getDescripcion());
+        existing.setTipo(zona.getTipo());
+        existing.setActiva(zona.getActiva());
+        Zona updated = zonaRepository.save(existing);
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return zonaRepository.findById(id).map(existing -> {
-            zonaRepository.delete(existing);
-            return ResponseEntity.ok().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
+        Zona existing = zonaRepository.findById(id)
+                .orElseThrow(() -> new ZonaNotFoundException("Zona no encontrada con id: " + id));
+        zonaRepository.delete(existing);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

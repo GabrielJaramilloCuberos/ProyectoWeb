@@ -1,7 +1,10 @@
 package com.example.vigilapp.controllers;
 
 import com.example.vigilapp.entities.Severidad;
+import com.example.vigilapp.exception.SeveridadNotFoundException;
 import com.example.vigilapp.repositories.SeveridadRepository;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -17,36 +20,42 @@ public class SeveridadController {
     }
 
     @GetMapping
-    public List<Severidad> getAll() {
-        return severidadRepository.findAll();
+    public ResponseEntity<List<Severidad>> getAll() {
+        List<Severidad> severidades = severidadRepository.findAll();
+        if (severidades.isEmpty()) {
+            throw new SeveridadNotFoundException("No se encontraron severidades");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(severidades);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Severidad> getById(@PathVariable Long id) {
-        return severidadRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Severidad severidad = severidadRepository.findById(id)
+                .orElseThrow(() -> new SeveridadNotFoundException("Severidad no encontrada con id: " + id));
+        return ResponseEntity.status(HttpStatus.OK).body(severidad);
     }
 
     @PostMapping
-    public Severidad create(@RequestBody Severidad severidad) {
-        return severidadRepository.save(severidad);
+    public ResponseEntity<Severidad> create(@Valid @RequestBody Severidad severidad) {
+        Severidad created = severidadRepository.save(severidad);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Severidad> update(@PathVariable Long id, @RequestBody Severidad severidad) {
-        return severidadRepository.findById(id).map(existing -> {
-            existing.setCodigo(severidad.getCodigo());
-            existing.setDescripcion(severidad.getDescripcion());
-            return ResponseEntity.ok(severidadRepository.save(existing));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Severidad> update(@PathVariable Long id, @Valid @RequestBody Severidad severidad) {
+        Severidad existing = severidadRepository.findById(id)
+                .orElseThrow(() -> new SeveridadNotFoundException("Severidad no encontrada con id: " + id));
+        existing.setCodigo(severidad.getCodigo());
+        existing.setDescripcion(severidad.getDescripcion());
+        Severidad updated = severidadRepository.save(existing);
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return severidadRepository.findById(id).map(existing -> {
-            severidadRepository.delete(existing);
-            return ResponseEntity.ok().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
+        Severidad existing = severidadRepository.findById(id)
+                .orElseThrow(() -> new SeveridadNotFoundException("Severidad no encontrada con id: " + id));
+        severidadRepository.delete(existing);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
