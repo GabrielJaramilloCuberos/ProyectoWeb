@@ -54,6 +54,19 @@ services:
     networks:
       - mi-red
 
+  frontend:
+    build:
+      context: ./frontend/vigilapp
+      dockerfile: Dockerfile
+    container_name: vigilapp-frontend
+    restart: always
+    ports:
+      - "${FRONTEND_PORT:-4000}:4000"
+    networks:
+      - mi-red
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
 
