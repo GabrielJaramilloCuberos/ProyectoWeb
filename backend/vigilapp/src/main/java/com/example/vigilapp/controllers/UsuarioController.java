@@ -1,7 +1,10 @@
 package com.example.vigilapp.controllers;
 
+import com.example.vigilapp.entities.Rol;
 import com.example.vigilapp.entities.Usuario;
+import com.example.vigilapp.exception.RolNotFoundException;
 import com.example.vigilapp.exception.UsuarioNotFoundException;
+import com.example.vigilapp.repositories.RolRepository;
 import com.example.vigilapp.repositories.UsuarioRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -14,9 +17,11 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
+    private final RolRepository rolRepository;
 
-    public UsuarioController(UsuarioRepository usuarioRepository) {
+    public UsuarioController(UsuarioRepository usuarioRepository, RolRepository rolRepository) {
         this.usuarioRepository = usuarioRepository;
+        this.rolRepository = rolRepository;
     }
 
     @GetMapping
@@ -37,6 +42,14 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<Usuario> create(@Valid @RequestBody Usuario usuario) {
+        if (usuario.getRol() != null && usuario.getRol().getId_rol() != null) {
+            Rol rolExistente = rolRepository.findById(usuario.getRol().getId_rol())
+                    .orElseThrow(
+                            () -> new RolNotFoundException("Rol no encontrado con id: " + usuario.getRol().getId_rol()));
+            usuario.setRol(rolExistente);
+        } else {
+            throw new IllegalArgumentException("El Rol es obligatorio y debe tener un ID válido");
+        }
         Usuario created = usuarioRepository.save(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }

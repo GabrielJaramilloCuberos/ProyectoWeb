@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Mail {
-  @Input() label: string = 'Correo Electrónico';
+  @Input() label: string = 'Correo electrónico';
   @Input() placeholder: string = 'correo@colegio.edu';
   
   @Input() email: string = '';

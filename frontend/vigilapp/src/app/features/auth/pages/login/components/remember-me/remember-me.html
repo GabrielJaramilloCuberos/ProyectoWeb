@@ -1,0 +1,20 @@
+<div class="flex items-center justify-center gap-2.5 pt-2 animate-fade-in" style="animation-delay: 0.5s;">
+    <div class="relative">
+        <input id="remember" type="checkbox" [(ngModel)]="checked" name="rememberMe" class="sr-only peer" />
+        <label for="remember" class="flex items-center justify-center w-6 h-6 rounded-lg border-2 border-gray-300 bg-white/50 cursor-pointer transition-all duration-300 ease-out
+                    peer-checked:bg-linear-to-br peer-checked:from-blue-500 peer-checked:to-cyan-400 peer-checked:border-blue-500 peer-checked:scale-110
+                    hover:border-blue-300 hover:shadow-lg hover:shadow-blue-200/50 hover:scale-105
+                    peer-focus:ring-2 peer-focus:ring-blue-400 peer-focus:ring-offset-2">
+            <svg class="w-4 h-4 text-white transition-all duration-300" [class.scale-100]="checked"
+                [class.opacity-100]="checked" [class.scale-0]="!checked" [class.opacity-0]="!checked" fill="none"
+                stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path d="M5 13l4 4L19 7"></path>
+            </svg>
+        </label>
+    </div>
+    <label for="remember"
+        class="text-sm font-medium text-gray-700 cursor-pointer select-none transition-all duration-300 hover:text-blue-600">
+        Recordar contraseña
+    </label>
+</div>

@@ -4,10 +4,11 @@ import { CommonModule } from '@angular/common';
 import { GlassCard } from '../../../../shared/ui/glass-card/glass-card';
 import { Mail } from '../../../../shared/ui/input/mail/mail';
 import { Password } from '../../../../shared/ui/input/password/password';
+import { RememberMe } from './components/remember-me/remember-me';
 
 @Component({
   selector: 'login',
-  imports: [FormsModule, CommonModule,GlassCard, Mail, Password],
+  imports: [FormsModule, CommonModule,GlassCard, Mail, Password, RememberMe],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
