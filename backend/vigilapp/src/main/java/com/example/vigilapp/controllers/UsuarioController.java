@@ -1,5 +1,6 @@
 package com.example.vigilapp.controllers;
 
+import com.example.vigilapp.dto.LoginRequest;
 import com.example.vigilapp.entities.Rol;
 import com.example.vigilapp.entities.Usuario;
 import com.example.vigilapp.exception.RolNotFoundException;
@@ -40,12 +41,29 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.OK).body(usuario);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<Usuario> login(@RequestBody LoginRequest request) {
+        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UsuarioNotFoundException("Credenciales inválidas"));
+
+        if (!usuario.getPassword().equals(request.getPassword())) {
+            throw new UsuarioNotFoundException("Credenciales inválidas");
+        }
+
+        if (Boolean.FALSE.equals(usuario.getEstado())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        return ResponseEntity.ok(usuario);
+    }
+
     @PostMapping
     public ResponseEntity<Usuario> create(@Valid @RequestBody Usuario usuario) {
         if (usuario.getRol() != null && usuario.getRol().getId_rol() != null) {
             Rol rolExistente = rolRepository.findById(usuario.getRol().getId_rol())
                     .orElseThrow(
-                            () -> new RolNotFoundException("Rol no encontrado con id: " + usuario.getRol().getId_rol()));
+                            () -> new RolNotFoundException(
+                                    "Rol no encontrado con id: " + usuario.getRol().getId_rol()));
             usuario.setRol(rolExistente);
         } else {
             throw new IllegalArgumentException("El Rol es obligatorio y debe tener un ID válido");

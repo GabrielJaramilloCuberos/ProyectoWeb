@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Password {
-  @Input() label: string = 'Contrasena';
+  @Input() label: string = 'Contraseña';
   @Input() placeholder: string = '********';
   @Input() password: string = '';
   @Input() delay: string = '0.4s';

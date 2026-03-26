@@ -26,18 +26,24 @@
 
         <!-- Login Form -->
         <form class="space-y-4 sm:space-y-5">
-          
+
           <app-mail [(email)]="email" delay="0.3s"></app-mail>
 
-          <app-password [(password)]="password" delay="0.4s" class = "block"></app-password>
+          <app-password [(password)]="password" delay="0.4s" class="block"></app-password>
 
           <app-remember-me [(checked)]="rememberMe" delay="0.5s"></app-remember-me>
-
+          
+          <p *ngIf="errorMessage" class="text-sm text-red-600 text-center">
+            {{ errorMessage }}
+          </p>
           <!-- Submit Button -->
-          <button type="button"
+          <button
+            type="button"
+            [disabled]="isLoading"
+            (click)="onLogin()"
             class="w-full mt-6 sm:mt-8 py-3 sm:py-3.5 bg-linear-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-medium rounded-xl transition-all duration-300 shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/35 active:scale-95 active:shadow-lg hover:scale-105 animate-fade-in"
             style="animation-delay: 0.6s;">
-            Iniciar Sesión
+            {{ isLoading ? 'Ingresando...' : 'Iniciar Sesión' }}
           </button>
         </form>
 
