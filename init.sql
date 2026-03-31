@@ -162,3 +162,30 @@ CREATE TABLE incidente (
     CONSTRAINT fk_incidente_tipo      FOREIGN KEY (id_tipo)      REFERENCES tipo_incidente(id_tipo),
     CONSTRAINT fk_incidente_severidad FOREIGN KEY (id_severidad) REFERENCES severidad(id_severidad)
 );
+
+INSERT INTO rol (id_rol, nombre)
+VALUES
+    (1, 'ADMINISTRADOR'),
+    (2, 'COORDINADOR'),
+    (3, 'PROFESOR')
+ON CONFLICT (id_rol) DO NOTHING;
+
+-- Ajusta la secuencia de rol cuando se insertan ids manuales
+SELECT setval('rol_id_rol_seq', (SELECT COALESCE(MAX(id_rol), 1) FROM rol), true);
+
+-- Usuarios de prueba (passwords BCrypt)
+-- admin123
+INSERT INTO usuario (nombre, email, password, estado, id_rol)
+VALUES ('Administrador', 'admin@example.com', '$2a$10$IGPrXPbajAmGvlN3PtcvYenPd2ZskOPiehog3HFvNGZFrhe/8u6bW', true, 1)
+ON CONFLICT (email) DO NOTHING;
+
+-- user123
+INSERT INTO usuario (nombre, email, password, estado, id_rol)
+VALUES ('Coordinador Prueba', 'usuario@example.com', '$2a$10$O6GTrIetOgPZn6ZWEpwCieeUC/y5SRghfmGkexDSD/x1xYd5IR9aS
+', true, 2)
+ON CONFLICT (email) DO NOTHING;
+
+-- docente123
+INSERT INTO usuario (nombre, email, password, estado, id_rol)
+VALUES ('Profesor Prueba', 'docente@example.com', '$2a$10$QTxT2esfUej4sB51OdQlwePhSt0k.FFb2xtdngmYeoI3LWfkGHLu6', true, 3)
+ON CONFLICT (email) DO NOTHING;

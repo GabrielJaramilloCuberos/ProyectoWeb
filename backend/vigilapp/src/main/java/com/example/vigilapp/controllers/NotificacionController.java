@@ -1,8 +1,7 @@
 package com.example.vigilapp.controllers;
 
 import com.example.vigilapp.entities.Notificacion;
-import com.example.vigilapp.exception.NotificacionNotFoundException;
-import com.example.vigilapp.repositories.NotificacionRepository;
+import com.example.vigilapp.services.NotificacionService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,52 +12,39 @@ import java.util.List;
 @RequestMapping("/api/notificaciones")
 public class NotificacionController {
 
-    private final NotificacionRepository notificacionRepository;
+    private final NotificacionService notificacionService;
 
-    public NotificacionController(NotificacionRepository notificacionRepository) {
-        this.notificacionRepository = notificacionRepository;
+    public NotificacionController(NotificacionService notificacionService) {
+        this.notificacionService = notificacionService;
     }
 
     @GetMapping
     public ResponseEntity<List<Notificacion>> getAll() {
-        List<Notificacion> notificaciones = notificacionRepository.findAll();
-        if (notificaciones.isEmpty()) {
-            throw new NotificacionNotFoundException("No se encontraron notificaciones");
-        }
+        List<Notificacion> notificaciones = notificacionService.getAll();
         return ResponseEntity.status(HttpStatus.OK).body(notificaciones);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Notificacion> getById(@PathVariable Long id) {
-        Notificacion notificacion = notificacionRepository.findById(id)
-                .orElseThrow(() -> new NotificacionNotFoundException("Notificación no encontrada con id: " + id));
+        Notificacion notificacion = notificacionService.getById(id);
         return ResponseEntity.status(HttpStatus.OK).body(notificacion);
     }
 
     @PostMapping
     public ResponseEntity<Notificacion> create(@Valid @RequestBody Notificacion notificacion) {
-        Notificacion created = notificacionRepository.save(notificacion);
+        Notificacion created = notificacionService.create(notificacion);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Notificacion> update(@PathVariable Long id, @Valid @RequestBody Notificacion notificacion) {
-        Notificacion existing = notificacionRepository.findById(id)
-                .orElseThrow(() -> new NotificacionNotFoundException("Notificación no encontrada con id: " + id));
-        existing.setMensaje(notificacion.getMensaje());
-        existing.setTipo(notificacion.getTipo());
-        existing.setFecha_envio(notificacion.getFecha_envio());
-        existing.setLeida(notificacion.getLeida());
-        existing.setUsuario(notificacion.getUsuario());
-        Notificacion updated = notificacionRepository.save(existing);
+        Notificacion updated = notificacionService.update(id, notificacion);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        Notificacion existing = notificacionRepository.findById(id)
-                .orElseThrow(() -> new NotificacionNotFoundException("Notificación no encontrada con id: " + id));
-        notificacionRepository.delete(existing);
+        notificacionService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
