@@ -47,16 +47,15 @@ public class SpringSecurityConfig {
     
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http){
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager());
+        jwtAuthenticationFilter.setFilterProcessesUrl("/auth/login");
+
         return http.authorizeHttpRequests((auth)-> auth
-        .requestMatchers(HttpMethod.GET,"/api/users").permitAll()
-        .requestMatchers(HttpMethod.POST,"/api/users/register").permitAll()
-        //.requestMatchers(HttpMethod.POST,"/api/users").hasRole("ADMIN")
-        //.requestMatchers(HttpMethod.GET,"/api/products","/api/products/{id}").hasAnyRole("ADMIN","USER")
-        //.requestMatchers(HttpMethod.POST,"/api/products").hasRole("ADMIN")
-        //.requestMatchers(HttpMethod.PUT,"/api/products/{id}").hasRole("ADMIN")
-        //.requestMatchers(HttpMethod.DELETE,"/api/products/{id}").hasRole("ADMIN")
+        .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
+        .requestMatchers(HttpMethod.POST,"/api/usuarios").permitAll()
+        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
         .anyRequest().authenticated())
-        .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+        .addFilter(jwtAuthenticationFilter)
         .addFilter(new JwtValidationFilter(authenticationManager()))
         .csrf(config ->config.disable())
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -69,7 +68,7 @@ public class SpringSecurityConfig {
     {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(Arrays.asList("*"));
-        config.setAllowedMethods(Arrays.asList("GET","POST","DELETE","PUT"));
+        config.setAllowedMethods(Arrays.asList("GET","POST","DELETE","PUT","OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization","Content-Type"));
         config.setAllowCredentials(true);
 

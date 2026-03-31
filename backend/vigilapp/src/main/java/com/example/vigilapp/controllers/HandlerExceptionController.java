@@ -14,6 +14,7 @@ import com.example.vigilapp.exception.IncidenteNotFoundException;
 import com.example.vigilapp.exception.MetricasDocenteNotFoundException;
 import com.example.vigilapp.exception.NotificacionNotFoundException;
 import com.example.vigilapp.exception.ReasignacionNotFoundException;
+import com.example.vigilapp.exception.RecorridoNotFoundException;
 import com.example.vigilapp.exception.RolNotFoundException;
 import com.example.vigilapp.exception.SeveridadNotFoundException;
 import com.example.vigilapp.exception.TipoIncidenteNotFoundException;
@@ -32,6 +33,7 @@ public class HandlerExceptionController {
         MetricasDocenteNotFoundException.class,
         NotificacionNotFoundException.class,
         ReasignacionNotFoundException.class,
+        RecorridoNotFoundException.class,
         RolNotFoundException.class,
         SeveridadNotFoundException.class,
         TipoIncidenteNotFoundException.class,

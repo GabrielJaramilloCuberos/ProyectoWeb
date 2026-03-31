@@ -1,8 +1,7 @@
 package com.example.vigilapp.controllers;
 
 import com.example.vigilapp.entities.TipoIncidente;
-import com.example.vigilapp.exception.TipoIncidenteNotFoundException;
-import com.example.vigilapp.repositories.TipoIncidenteRepository;
+import com.example.vigilapp.services.TipoIncidenteService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,48 +12,39 @@ import java.util.List;
 @RequestMapping("/api/tipos-incidente")
 public class TipoIncidenteController {
 
-    private final TipoIncidenteRepository tipoIncidenteRepository;
+    private final TipoIncidenteService tipoIncidenteService;
 
-    public TipoIncidenteController(TipoIncidenteRepository tipoIncidenteRepository) {
-        this.tipoIncidenteRepository = tipoIncidenteRepository;
+    public TipoIncidenteController(TipoIncidenteService tipoIncidenteService) {
+        this.tipoIncidenteService = tipoIncidenteService;
     }
 
     @GetMapping
     public ResponseEntity<List<TipoIncidente>> getAll() {
-        List<TipoIncidente> tiposIncidente = tipoIncidenteRepository.findAll();
-        if (tiposIncidente.isEmpty()) {
-            throw new TipoIncidenteNotFoundException("No se encontraron tipos de incidente");
-        }
+        List<TipoIncidente> tiposIncidente = tipoIncidenteService.getAll();
         return ResponseEntity.status(HttpStatus.OK).body(tiposIncidente);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TipoIncidente> getById(@PathVariable Long id) {
-        TipoIncidente tipoIncidente = tipoIncidenteRepository.findById(id)
-                .orElseThrow(() -> new TipoIncidenteNotFoundException("Tipo de incidente no encontrado con id: " + id));
+        TipoIncidente tipoIncidente = tipoIncidenteService.getById(id);
         return ResponseEntity.status(HttpStatus.OK).body(tipoIncidente);
     }
 
     @PostMapping
     public ResponseEntity<TipoIncidente> create(@Valid @RequestBody TipoIncidente tipoIncidente) {
-        TipoIncidente created = tipoIncidenteRepository.save(tipoIncidente);
+        TipoIncidente created = tipoIncidenteService.create(tipoIncidente);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TipoIncidente> update(@PathVariable Long id, @Valid @RequestBody TipoIncidente tipoIncidente) {
-        TipoIncidente existing = tipoIncidenteRepository.findById(id)
-                .orElseThrow(() -> new TipoIncidenteNotFoundException("Tipo de incidente no encontrado con id: " + id));
-        existing.setNombre(tipoIncidente.getNombre());
-        TipoIncidente updated = tipoIncidenteRepository.save(existing);
+        TipoIncidente updated = tipoIncidenteService.update(id, tipoIncidente);
         return ResponseEntity.status(HttpStatus.OK).body(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        TipoIncidente existing = tipoIncidenteRepository.findById(id)
-                .orElseThrow(() -> new TipoIncidenteNotFoundException("Tipo de incidente no encontrado con id: " + id));
-        tipoIncidenteRepository.delete(existing);
+        tipoIncidenteService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
