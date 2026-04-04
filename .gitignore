@@ -25,3 +25,5 @@ coverage/
 .cache/
 tmp/
 temp/
+
+*.sh
