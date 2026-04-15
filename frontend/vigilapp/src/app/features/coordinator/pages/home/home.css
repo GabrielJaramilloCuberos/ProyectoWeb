@@ -1,0 +1,5 @@
+/* The layout is composed with utility classes in the template. */
+
+:host {
+	display: block;
+}

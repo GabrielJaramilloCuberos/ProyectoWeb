@@ -1,0 +1,42 @@
+<section>
+	<h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 sm:mb-6 px-1">
+		Mapa de Zonas
+	</h2>
+
+	<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+		<button
+			type="button"
+			*ngFor="let zone of zones"
+			(click)="zoneSelected.emit(zone)"
+			class="text-left bg-white/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 transition-all border border-slate-200 hover:border-slate-300 shadow-sm"
+		>
+			<div class="flex items-start justify-between gap-3 mb-3">
+				<div
+					class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+					[ngClass]="getZoneStatusClasses(getZoneStatus(zone.name).status).icon"
+				>
+					<span class="text-lg font-semibold" [ngClass]="getZoneStatusClasses(getZoneStatus(zone.name).status).iconText">#</span>
+				</div>
+
+				<span
+					class="px-2 py-1 rounded-lg text-xs font-medium"
+					[ngClass]="getZoneStatusClasses(getZoneStatus(zone.name).status).badge"
+				>
+					{{ getZoneStatus(zone.name).label }}
+				</span>
+			</div>
+
+			<h3 class="text-base sm:text-lg font-semibold text-slate-900 mb-1">{{ zone.name }}</h3>
+			<p class="text-xs sm:text-sm text-slate-600 mb-3">{{ zone.description }}</p>
+
+			<div *ngIf="getZoneShift(zone.name) as zoneShift" class="pt-3 border-t border-slate-100 space-y-1">
+				<div class="flex items-center gap-2 text-xs text-slate-600">
+					<span class="truncate">{{ zoneShift.teacherName }}</span>
+				</div>
+				<div class="flex items-center gap-2 text-xs text-slate-600">
+					<span>{{ zoneShift.patrolCount || 0 }} recorridos</span>
+				</div>
+			</div>
+		</button>
+	</div>
+</section>

@@ -1,0 +1,89 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+	<div class="w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-2xl border border-slate-200">
+		<div class="flex items-start justify-between gap-4 p-6 border-b border-slate-100">
+			<div>
+				<h3 class="text-2xl font-semibold text-slate-900">Detalles de Zona</h3>
+				<p class="text-sm text-slate-500">{{ zone?.description || '' }}</p>
+			</div>
+
+			<button type="button" (click)="close.emit()" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">&times;</button>
+		</div>
+
+		<div *ngIf="zone" class="space-y-4 p-6">
+			<div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+				<div class="w-12 h-12 bg-sky-100 rounded-xl flex items-center justify-center flex-shrink-0">
+					<span class="text-sky-600 font-semibold">#</span>
+				</div>
+
+				<div>
+					<div class="text-lg font-semibold text-slate-900">{{ zone.name }}</div>
+					<div class="text-sm text-slate-600">Capacidad: {{ zone.capacity }} estudiantes</div>
+				</div>
+			</div>
+
+			<div>
+				<h4 class="text-sm font-medium text-slate-700 mb-3">Turnos de Hoy</h4>
+				<div *ngIf="shifts.length > 0; else noShifts" class="space-y-2">
+					<div *ngFor="let shift of shifts" class="p-3 bg-slate-50 rounded-xl flex items-center justify-between gap-3">
+						<div>
+							<div class="text-sm font-medium text-slate-900">{{ shift.teacherName }}</div>
+							<div class="text-xs text-slate-600">{{ shift.startTime }} - {{ shift.endTime }}</div>
+						</div>
+
+						<span
+							class="px-2 py-0.5 rounded-full text-xs font-medium"
+							[class.bg-emerald-100]="shift.status === 'active'"
+							[class.text-emerald-700]="shift.status === 'active'"
+							[class.bg-slate-100]="shift.status === 'completed'"
+							[class.text-slate-700]="shift.status === 'completed'"
+							[class.bg-rose-100]="shift.status === 'missed'"
+							[class.text-rose-700]="shift.status === 'missed'"
+							[class.bg-amber-100]="shift.status === 'pending'"
+							[class.text-amber-700]="shift.status === 'pending'"
+						>
+							{{ shift.status === 'active' ? 'Activo' : shift.status === 'completed' ? 'Completado' : shift.status === 'missed' ? 'Sin cubrir' : 'Pendiente' }}
+						</span>
+					</div>
+				</div>
+
+				<ng-template #noShifts>
+					<p class="text-sm text-slate-500">Sin turnos hoy</p>
+				</ng-template>
+			</div>
+
+			<div *ngIf="incidents.length > 0">
+				<h4 class="text-sm font-medium text-slate-700 mb-3">Incidentes Hoy</h4>
+				<div class="space-y-2">
+					<div *ngFor="let incident of incidents" class="p-3 bg-slate-50 rounded-xl">
+						<div class="flex items-center gap-2 mb-1">
+							<span
+								class="px-2 py-0.5 rounded text-xs font-medium"
+								[class.bg-rose-100]="incident.severity === 'S3'"
+								[class.text-rose-700]="incident.severity === 'S3'"
+								[class.bg-amber-100]="incident.severity === 'S2'"
+								[class.text-amber-700]="incident.severity === 'S2'"
+								[class.bg-yellow-100]="incident.severity === 'S1'"
+								[class.text-yellow-700]="incident.severity === 'S1'"
+							>
+								{{ incident.severity }}
+							</span>
+						</div>
+						<p class="text-sm text-slate-900">{{ incident.description }}</p>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<h4 class="text-sm font-medium text-slate-700 mb-3">Puntos de Control</h4>
+				<div class="space-y-2">
+					<div *ngFor="let checkpoint of zone.checkpoints; let i = index" class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl text-sm text-slate-700">
+						<div class="w-6 h-6 bg-sky-100 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium text-sky-600">
+							{{ i + 1 }}
+						</div>
+						{{ checkpoint }}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
