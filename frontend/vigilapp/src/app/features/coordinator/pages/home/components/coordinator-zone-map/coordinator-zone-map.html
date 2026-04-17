@@ -1,0 +1,64 @@
+<section class="space-y-4">
+	<div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+		<div>
+			<h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1 px-1">Mapa de calor de zonas</h2>
+			<p class="text-sm text-slate-600 px-1">Vista clara y sobria. Haz clic sobre una zona para ver el resumen histórico.</p>
+		</div>
+
+		<div class="flex flex-wrap gap-2 text-[11px] font-medium text-slate-500 px-1">
+			<span class="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700">Baja</span>
+			<span class="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-700">Media</span>
+			<span class="rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-orange-700">Alta</span>
+			<span class="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-rose-700">Crítica</span>
+		</div>
+	</div>
+
+	<div class="relative min-h-136 overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-sm">
+		<div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.05),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.05),transparent_26%),linear-gradient(180deg,#ffffff,#f8fafc)]"></div>
+		<div class="absolute inset-0 opacity-60" style="background-image: linear-gradient(rgba(148,163,184,0.16) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.16) 1px, transparent 1px); background-size: 44px 44px;"></div>
+
+		<svg class="absolute inset-0 h-full w-full opacity-90" viewBox="0 0 1000 640" preserveAspectRatio="none" aria-hidden="true">
+			<rect x="0" y="0" width="1000" height="640" fill="transparent" />
+			<path d="M144 108h208c18 0 32 14 32 32v108H112V140c0-18 14-32 32-32Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" />
+			<path d="M646 104h208c18 0 32 14 32 32v118H614V136c0-18 14-32 32-32Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" />
+			<path d="M182 382h168c18 0 32 14 32 32v100H150V414c0-18 14-32 32-32Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" />
+			<path d="M678 414h162c18 0 32 14 32 32v92H646v-92c0-18 14-32 32-32Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" />
+			<ellipse cx="505" cy="348" rx="214" ry="116" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" />
+			<path d="M112 214H888M112 430H888M505 66V572" stroke="#e2e8f0" stroke-width="18" stroke-linecap="round" />
+			<path d="M250 106V532M744 106V532" stroke="#e2e8f0" stroke-width="8" stroke-linecap="round" />
+			<path d="M275 318H726" stroke="#e2e8f0" stroke-width="6" stroke-linecap="round" />
+
+			<text x="130" y="88" fill="#475569" font-size="16" font-weight="600">Bloque A</text>
+			<text x="666" y="86" fill="#475569" font-size="16" font-weight="600">Bloque B</text>
+			<text x="430" y="344" fill="#475569" font-size="18" font-weight="700">Patio Central</text>
+			<text x="668" y="406" fill="#475569" font-size="16" font-weight="600">Bloque C</text>
+		</svg>
+
+		<ng-container *ngFor="let zone of zones">
+			<ng-container *ngIf="getZoneMetrics(zone) as metrics">
+				<button
+					type="button"
+					(click)="zoneSelected.emit(zone)"
+					class="absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-sky-300 focus:ring-offset-4 focus:ring-offset-white"
+					[ngClass]="getZoneCircleClasses(metrics.heatLevel)"
+					[ngStyle]="getZoneCircleStyle(zone)"
+					[attr.aria-label]="'Abrir resumen de ' + zone.name"
+				>
+					<span
+						class="block rounded-full border-2 border-white/85 ring-1 ring-slate-200/80 transition-transform duration-200 group-hover:scale-105"
+						[ngStyle]="getZoneDotStyle(metrics.heatLevel)"
+					></span>
+					<span class="whitespace-nowrap text-xs font-medium text-slate-600">{{ zone.name }}</span>
+				</button>
+
+				<div
+					class="pointer-events-none absolute z-5 rounded-full border border-transparent"
+					[ngClass]="getHeatRingClasses(metrics.heatLevel)"
+					[ngStyle]="getZoneCircleStyle(zone)"
+				></div>
+			</ng-container>
+		</ng-container>
+	</div>
+
+	<p class="px-1 text-xs text-slate-500">Los colores representan carga relativa de incidencias y cobertura.</p>
+</section>

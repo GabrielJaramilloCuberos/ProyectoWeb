@@ -1,0 +1,68 @@
+<div class="min-h-screen relative bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900">
+	<app-coordinator-header
+		[autoRefresh]="autoRefresh"
+		(back)="onBack()"
+		(toggleAutoRefresh)="toggleAutoRefresh()"
+	/>
+
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-12 space-y-6 sm:space-y-8">
+		<app-coordinator-stats
+			[activeShifts]="activeShifts.length"
+			[missedShifts]="missedShifts.length"
+			[patrolCount]="patrolCount"
+			[incidents]="todayIncidents.length"
+		/>
+
+		<app-coordinator-alerts
+			*ngIf="missedShifts.length > 0"
+			[missedShifts]="missedShifts"
+			(viewDetails)="viewShiftDetails($event)"
+			(reassign)="openReassignDialog($event)"
+		/>
+
+		<app-coordinator-zone-map
+			[zones]="mockZones"
+			[activeShifts]="activeShifts"
+			[missedShifts]="missedShifts"
+			[incidents]="todayIncidents"
+			(zoneSelected)="viewZoneDetails($event.id)"
+		/>
+
+		<app-coordinator-active-shifts
+			*ngIf="activeShifts.length > 0"
+			[shifts]="activeShifts"
+			(shiftSelected)="viewShiftDetails($event)"
+		/>
+
+		<app-coordinator-activity-feed
+			*ngIf="todayIncidents.length > 0"
+			[incidents]="todayIncidents.slice(0, 8)"
+		/>
+	</div>
+
+	<app-coordinator-shift-details-dialog
+		*ngIf="selectedShift"
+		[shift]="selectedShift"
+		(close)="closeShiftDetails()"
+		(reassign)="openReassignDialog($event)"
+	/>
+
+	<app-coordinator-zone-details-dialog
+		*ngIf="selectedZoneData"
+		[zone]="selectedZoneData"
+		[shifts]="selectedZoneShifts"
+		[incidents]="selectedZoneIncidents"
+		[incidentSummary]="selectedZoneIncidentSummary"
+		[currentTeacherName]="selectedZoneTeacherName"
+		[currentTeacherLabel]="selectedZoneTeacherLabel"
+		(close)="closeZoneDetails()"
+	/>
+
+	<app-coordinator-reassign-dialog
+		*ngIf="reassignShift"
+		[shift]="reassignShift"
+		[availableTeachers]="availableTeachers"
+		(close)="closeReassignDialog()"
+		(confirm)="confirmReassign($event.shift, $event.teacherId)"
+	/>
+</div>

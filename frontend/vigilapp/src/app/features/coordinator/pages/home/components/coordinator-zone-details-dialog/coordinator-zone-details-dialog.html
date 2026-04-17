@@ -1,0 +1,87 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm">
+	<div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-2xl border border-slate-200">
+		<div class="flex items-start justify-between gap-4 p-6 border-b border-slate-100">
+			<div>
+				<h3 class="text-2xl font-semibold text-slate-900">Resumen de zona</h3>
+				<p class="text-sm text-slate-500">{{ zone?.description || '' }}</p>
+			</div>
+
+			<button type="button" (click)="close.emit()" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">&times;</button>
+		</div>
+
+		<div *ngIf="zone" class="space-y-5 p-6">
+			<div class="grid gap-4 md:grid-cols-[1.4fr_0.9fr]">
+				<div class="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+					<div class="flex items-start justify-between gap-4">
+						<div>
+							<p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Zona seleccionada</p>
+							<h4 class="mt-2 text-xl font-semibold text-slate-900">{{ zone.name }}</h4>
+							<p class="mt-1 text-sm text-slate-600">Capacidad: {{ zone.capacity }} estudiantes</p>
+						</div>
+						<div class="rounded-2xl border border-sky-100 bg-white px-4 py-3 text-right">
+							<div class="text-xs uppercase tracking-[0.25em] text-slate-500">Docente</div>
+							<div class="mt-1 text-sm font-semibold text-slate-900">{{ currentTeacherName || 'Sin docente asignado' }}</div>
+							<div class="text-xs text-slate-500">{{ currentTeacherLabel || 'Asignación no disponible' }}</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="rounded-2xl border border-slate-200 bg-white p-5">
+					<p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Puntos de control</p>
+					<div class="mt-3 space-y-2">
+						<div *ngFor="let checkpoint of zone.checkpoints; let i = index" class="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+							<div class="w-6 h-6 bg-sky-100 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium text-sky-600">
+								{{ i + 1 }}
+							</div>
+							{{ checkpoint }}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 mb-3">Histórico de incidencias</p>
+				<div class="grid gap-3 sm:grid-cols-3">
+					<div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+						<div class="text-2xl font-semibold text-slate-900">{{ incidentSummary.total }}</div>
+						<div class="text-sm text-slate-600">Total registrado</div>
+					</div>
+					<div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+						<div class="text-2xl font-semibold text-slate-900">{{ incidentSummary.lastMonth }}</div>
+						<div class="text-sm text-slate-600">Último mes</div>
+					</div>
+					<div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+						<div class="text-2xl font-semibold text-slate-900">{{ incidentSummary.lastWeek }}</div>
+						<div class="text-sm text-slate-600">Última semana</div>
+					</div>
+				</div>
+			</div>
+
+			<div *ngIf="shifts.length > 0" class="rounded-2xl border border-slate-200 bg-white p-5">
+				<p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 mb-3">Cobertura de hoy</p>
+				<div class="space-y-2">
+					<div *ngFor="let shift of shifts" class="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2">
+						<div>
+							<div class="text-sm font-medium text-slate-900">{{ shift.teacherName }}</div>
+							<div class="text-xs text-slate-500">{{ shift.startTime }} - {{ shift.endTime }}</div>
+						</div>
+
+						<span
+							class="rounded-full px-2.5 py-1 text-xs font-medium"
+							[class.bg-emerald-50]="shift.status === 'active'"
+							[class.text-emerald-700]="shift.status === 'active'"
+							[class.bg-slate-100]="shift.status === 'completed'"
+							[class.text-slate-700]="shift.status === 'completed'"
+							[class.bg-rose-50]="shift.status === 'missed'"
+							[class.text-rose-700]="shift.status === 'missed'"
+							[class.bg-amber-50]="shift.status === 'pending'"
+							[class.text-amber-700]="shift.status === 'pending'"
+						>
+							{{ shift.status === 'active' ? 'Activo' : shift.status === 'completed' ? 'Completado' : shift.status === 'missed' ? 'Sin cubrir' : 'Pendiente' }}
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

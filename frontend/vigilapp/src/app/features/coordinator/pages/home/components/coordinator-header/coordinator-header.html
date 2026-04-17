@@ -1,0 +1,33 @@
+<header class="sticky top-0 z-10 backdrop-blur-xl bg-white/75 border-b border-slate-200/70">
+	<div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+		<div class="flex items-center justify-between gap-4">
+			<div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+				<button
+					type="button"
+					(click)="back.emit()"
+					class="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors flex-shrink-0"
+					aria-label="Volver"
+				>
+					<span class="text-lg leading-none">&larr;</span>
+				</button>
+
+				<div class="min-w-0">
+					<h1 class="text-lg sm:text-xl font-semibold text-slate-900 truncate">Monitoreo en Vivo</h1>
+					<p class="text-xs sm:text-sm text-slate-500">Vigilancia en tiempo real</p>
+				</div>
+			</div>
+
+			<button
+				type="button"
+				(click)="toggleAutoRefresh.emit()"
+				class="px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all"
+				[class.bg-emerald-100]="autoRefresh"
+				[class.text-emerald-700]="autoRefresh"
+				[class.bg-slate-100]="!autoRefresh"
+				[class.text-slate-700]="!autoRefresh"
+			>
+				{{ autoRefresh ? 'Auto-actualizar' : 'Manual' }}
+			</button>
+		</div>
+	</div>
+</header>

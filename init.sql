@@ -181,7 +181,7 @@ ON CONFLICT (email) DO NOTHING;
 
 -- user123
 INSERT INTO usuario (nombre, email, password, estado, id_rol)
-VALUES ('Coordinador Prueba', 'usuario@example.com', '$2a$10$O6GTrIetOgPZn6ZWEpwCieeUC/y5SRghfmGkexDSD/x1xYd5IR9aS
+VALUES ('Coordinador Prueba', 'coordinador@example.com', '$2a$10$O6GTrIetOgPZn6ZWEpwCieeUC/y5SRghfmGkexDSD/x1xYd5IR9aS
 ', true, 2)
 ON CONFLICT (email) DO NOTHING;
 

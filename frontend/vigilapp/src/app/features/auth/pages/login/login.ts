@@ -43,11 +43,6 @@ export class LoginPage {
       next: (usuario: UsuarioLogin) => {
         this.isLoading = false;
 
-        if (!usuario.estado) {
-          this.errorMessage = 'Tu usuario está inactivo';
-          return;
-        }
-
         const storage = this.rememberMe ? localStorage : sessionStorage;
         storage.setItem('auth_user', JSON.stringify(usuario));
 

@@ -1,0 +1,45 @@
+<section>
+	<h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 sm:mb-6 px-1">
+		Zonas Sin Cobertura
+	</h2>
+
+	<div class="space-y-3 sm:space-y-4">
+		<div
+			*ngFor="let shift of missedShifts"
+			class="bg-white/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 border-2 border-rose-200/70 shadow-sm"
+		>
+			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+				<div class="flex-1 min-w-0">
+					<div class="flex items-center gap-2 mb-2">
+						<div class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
+						<h3 class="text-base sm:text-lg font-semibold text-slate-900">{{ shift.zoneName }}</h3>
+					</div>
+
+					<div class="text-sm text-slate-600 space-y-1">
+						<p>Docente: {{ shift.teacherName }}</p>
+						<p>Horario: {{ shift.startTime }} - {{ shift.endTime }}</p>
+						<p class="text-rose-600 font-medium">Sin check-in desde hace 10 minutos</p>
+					</div>
+				</div>
+
+				<div class="flex gap-2 self-start sm:self-auto">
+					<button
+						type="button"
+						(click)="viewDetails.emit(shift)"
+						class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl transition-all text-sm"
+					>
+						Ver detalles
+					</button>
+
+					<button
+						type="button"
+						(click)="reassign.emit(shift)"
+						class="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-xl transition-all text-sm"
+					>
+						Reasignar
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
