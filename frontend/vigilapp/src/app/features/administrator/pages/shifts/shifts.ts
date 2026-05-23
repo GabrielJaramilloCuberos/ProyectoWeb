@@ -285,4 +285,14 @@ export class Shifts {
       missed:  dayShifts.filter(s => s.status === 'missed').length
     };
   }
+  getHourSlots(): string[] {
+    return Array.from({ length: 14 }, (_, i) => {
+      const h = i + 6;
+      return `${String(h).padStart(2, '0')}:00`;
+    });
+  }
+
+  getShiftsForHour(shifts: Shift[], hour: string): Shift[] {
+    return shifts.filter(s => s.startTime.substring(0, 2) === hour.substring(0, 2));
+  }
 }
