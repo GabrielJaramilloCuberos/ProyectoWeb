@@ -11,7 +11,7 @@ const USER_KEY = 'auth_user';
 export class Auth {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
-  private api = '/auth';
+  private api = 'http://localhost:8080/auth';
 
   private isBrowser(): boolean {
     return isPlatformBrowser(this.platformId);
