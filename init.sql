@@ -138,6 +138,14 @@ CREATE TABLE tipo_incidente (
 );
 
 -- ========================
+-- Tabla: Departamento
+-- ========================
+CREATE TABLE departamento (
+    id_departamento BIGSERIAL PRIMARY KEY,
+    nombre          VARCHAR(150) NOT NULL
+);
+
+-- ========================
 -- Tabla: Severidad
 -- ========================
 CREATE TABLE severidad (
@@ -187,3 +195,58 @@ ON CONFLICT (email) DO NOTHING;
 INSERT INTO usuario (nombre, email, password, estado, id_rol)
 VALUES ('Profesor Prueba', 'profesor@ejemplo.com', '$2b$10$RjB4pGlRdtXOJcqXeYBNuOJt37LsEWFxPJIosOZ9TwcbbTHya0.GK', true, 3)
 ON CONFLICT (email) DO NOTHING;
+
+-- ========================
+-- Catálogo: Zonas
+-- (ids alineados con el frontend: features/profesor/pages/reporte/reporte.ts)
+-- ========================
+INSERT INTO zona (id_zona, nombre, descripcion, tipo, activa)
+VALUES
+    (1, 'Bloque A',      'Ingreso principal y pasillos administrativos',     'BLOQUE', true),
+    (2, 'Bloque B',      'Aulas de ciencias y laboratorios',                 'BLOQUE', true),
+    (3, 'Patio Central', 'Zona de recreo y circulación de estudiantes',      'PATIO',  true),
+    (4, 'Bloque C',      'Biblioteca, sala de docentes y apoyo académico',   'BLOQUE', true)
+ON CONFLICT (id_zona) DO NOTHING;
+
+SELECT setval('zona_id_zona_seq', (SELECT COALESCE(MAX(id_zona), 1) FROM zona), true);
+
+-- ========================
+-- Catálogo: Tipos de Incidente
+-- (ids alineados con el frontend)
+-- ========================
+INSERT INTO tipo_incidente (id_tipo, nombre)
+VALUES
+    (1, 'Seguridad Física'),
+    (2, 'Convivencia'),
+    (3, 'Uso del Espacio'),
+    (4, 'Observación Social')
+ON CONFLICT (id_tipo) DO NOTHING;
+
+SELECT setval('tipo_incidente_id_tipo_seq', (SELECT COALESCE(MAX(id_tipo), 1) FROM tipo_incidente), true);
+
+-- ========================
+-- Catálogo: Severidades
+-- (ids alineados con el frontend: S1=1, S2=2, S3=3)
+-- ========================
+INSERT INTO severidad (id_severidad, codigo, descripcion)
+VALUES
+    (1, 'S1', 'Leve - Situación menor'),
+    (2, 'S2', 'Seguimiento - Requiere atención'),
+    (3, 'S3', 'Urgente - Atención inmediata')
+ON CONFLICT (id_severidad) DO NOTHING;
+
+SELECT setval('severidad_id_severidad_seq', (SELECT COALESCE(MAX(id_severidad), 1) FROM severidad), true);
+
+-- ========================
+-- Catálogo: Departamentos
+-- (ids alineados con el frontend: 1=Enfermería, 2=Aseo, 3=Psicología, 4=Vida Comunitaria)
+-- ========================
+INSERT INTO departamento (id_departamento, nombre)
+VALUES
+    (1, 'Enfermería'),
+    (2, 'Aseo'),
+    (3, 'Psicología'),
+    (4, 'Vida Comunitaria')
+ON CONFLICT (id_departamento) DO NOTHING;
+
+SELECT setval('departamento_id_departamento_seq', (SELECT COALESCE(MAX(id_departamento), 1) FROM departamento), true);
