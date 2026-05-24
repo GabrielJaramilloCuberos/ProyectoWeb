@@ -11,6 +11,7 @@ import { CoordinatorReassignDialog } from './components/coordinator-reassign-dia
 import { CoordinatorShiftDetailsDialog } from './components/coordinator-shift-details-dialog/coordinator-shift-details-dialog';
 import { CoordinatorStats } from './components/coordinator-stats/coordinator-stats';
 import { CoordinatorZoneDetailsDialog } from './components/coordinator-zone-details-dialog/coordinator-zone-details-dialog';
+import { IncidentesPorZonaTabla } from '../../../../shared/ui/incidentes-por-zona-tabla/incidentes-por-zona-tabla';
 import {
   COORDINATOR_DAY,
   MOCK_INCIDENTS,
@@ -35,6 +36,7 @@ import {
     CoordinatorStats,
     CoordinatorAlerts,
     HeatmapComponent,
+    IncidentesPorZonaTabla,
     CoordinatorActiveShifts,
     CoordinatorActivityFeed,
     CoordinatorShiftDetailsDialog,
