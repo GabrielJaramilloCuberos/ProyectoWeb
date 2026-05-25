@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-cyan-50 px-4 py-8">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 px-4 py-8">
   <div class="w-full max-w-2xl mx-auto">
 
     <!-- Header -->
@@ -13,6 +13,13 @@
       <h1 class="text-xl font-semibold text-gray-800">Registrar Incidente</h1>
     </div>
 
+    <!-- Aviso: sin turno activo -->
+    @if (turnoActivoId() === null) {
+      <div class="mb-4 px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+        ⚠️ No tienes un turno activo. Solo puedes reportar incidentes durante un turno asignado o en curso.
+      </div>
+    }
+
     <app-glass-card>
       <div class="space-y-8">
 
@@ -26,19 +33,23 @@
           <!-- Zona -->
           <div class="space-y-2">
             <p class="text-sm font-medium text-gray-500">Zona</p>
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              @for (zona of zonas; track zona.id) {
+            @if (zonas().length === 0) {
+              <p class="text-xs text-gray-400 italic">Cargando zonas...</p>
+            }
+            <div class="grid grid-cols-2 gap-3">
+              @for (zona of zonas(); track zona.id_zona) {
                 <button
                   type="button"
-                  (click)="seleccionarZona(zona.id)"
+                  (click)="seleccionarZona(zona.id_zona)"
                   class="text-left px-4 py-3 rounded-2xl border transition-all duration-200 active:scale-95"
-                  [class.border-blue-400]="zonaSeleccionada() === zona.id"
-                  [class.border-2]="zonaSeleccionada() === zona.id"
-                  [class.bg-blue-50]="zonaSeleccionada() === zona.id"
-                  [class.border-gray-200]="zonaSeleccionada() !== zona.id"
-                  [class.bg-white]="zonaSeleccionada() !== zona.id"
-                  [class.hover:border-blue-200]="zonaSeleccionada() !== zona.id">
+                  [class.border-blue-400]="zonaSeleccionada() === zona.id_zona"
+                  [class.border-2]="zonaSeleccionada() === zona.id_zona"
+                  [class.bg-blue-50]="zonaSeleccionada() === zona.id_zona"
+                  [class.border-gray-200]="zonaSeleccionada() !== zona.id_zona"
+                  [class.bg-white]="zonaSeleccionada() !== zona.id_zona"
+                  [class.hover:border-blue-200]="zonaSeleccionada() !== zona.id_zona">
                   <p class="text-sm font-semibold text-gray-800">{{ zona.nombre }}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">{{ zona.descripcion }}</p>
                 </button>
               }
             </div>
@@ -47,19 +58,22 @@
           <!-- Tipo de Incidente -->
           <div class="space-y-2">
             <p class="text-sm font-medium text-gray-500">Tipo de Incidente</p>
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              @for (tipo of tiposIncidente; track tipo.id) {
+            @if (tipos().length === 0) {
+              <p class="text-xs text-gray-400 italic">Cargando tipos...</p>
+            }
+            <div class="grid grid-cols-2 gap-3">
+              @for (tipo of tipos(); track tipo.id_tipo) {
                 <button
                   type="button"
-                  (click)="seleccionarTipo(tipo.id)"
+                  (click)="seleccionarTipo(tipo.id_tipo)"
                   class="text-left px-4 py-3 rounded-2xl border transition-all duration-200 active:scale-95"
-                  [class.border-blue-400]="tipoSeleccionado() === tipo.id"
-                  [class.border-2]="tipoSeleccionado() === tipo.id"
-                  [class.bg-blue-50]="tipoSeleccionado() === tipo.id"
-                  [class.border-gray-200]="tipoSeleccionado() !== tipo.id"
-                  [class.bg-white]="tipoSeleccionado() !== tipo.id">
+                  [class.border-blue-400]="tipoSeleccionado() === tipo.id_tipo"
+                  [class.border-2]="tipoSeleccionado() === tipo.id_tipo"
+                  [class.bg-blue-50]="tipoSeleccionado() === tipo.id_tipo"
+                  [class.border-gray-200]="tipoSeleccionado() !== tipo.id_tipo"
+                  [class.bg-white]="tipoSeleccionado() !== tipo.id_tipo">
                   <p class="text-sm font-semibold text-gray-800">{{ tipo.nombre }}</p>
-                  <p class="text-xs text-gray-400 mt-0.5">{{ tipo.descripcion }}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">{{ subtituloTipo(tipo.nombre) }}</p>
                 </button>
               }
             </div>
@@ -75,25 +89,29 @@
             <div class="flex-1 h-px bg-gray-100"></div>
           </div>
 
+          @if (severidades().length === 0) {
+            <p class="text-xs text-gray-400 italic">Cargando severidades...</p>
+          }
+
           <div class="space-y-3">
-            @for (sev of severidades; track sev.codigo) {
+            @for (sev of severidades(); track sev.id_severidad) {
               <button
                 type="button"
-                (click)="seleccionarSeveridad(sev.codigo)"
+                (click)="seleccionarSeveridad(sev.id_severidad)"
                 class="w-full text-left px-4 py-4 rounded-2xl border transition-all duration-200 active:scale-[0.99]"
-                [class.border-blue-400]="severidadSeleccionada() === sev.codigo"
-                [class.border-2]="severidadSeleccionada() === sev.codigo"
-                [class.bg-blue-50]="severidadSeleccionada() === sev.codigo"
-                [class.border-gray-200]="severidadSeleccionada() !== sev.codigo"
-                [class.bg-white]="severidadSeleccionada() !== sev.codigo">
+                [class.border-blue-400]="severidadSeleccionada() === sev.id_severidad"
+                [class.border-2]="severidadSeleccionada() === sev.id_severidad"
+                [class.bg-blue-50]="severidadSeleccionada() === sev.id_severidad"
+                [class.border-gray-200]="severidadSeleccionada() !== sev.id_severidad"
+                [class.bg-white]="severidadSeleccionada() !== sev.id_severidad">
                 <div class="flex items-center gap-4">
                   <span class="text-sm font-bold w-7"
-                    [class.text-blue-500]="severidadSeleccionada() === sev.codigo"
-                    [class.text-gray-300]="severidadSeleccionada() !== sev.codigo">
+                    [class.text-blue-500]="severidadSeleccionada() === sev.id_severidad"
+                    [class.text-gray-300]="severidadSeleccionada() !== sev.id_severidad">
                     {{ sev.codigo }}
                   </span>
                   <div>
-                    <p class="text-sm font-semibold text-gray-800">{{ sev.nombre }}</p>
+                    <p class="text-sm font-semibold text-gray-800">{{ nombreSeveridad(sev.codigo) }}</p>
                     <p class="text-xs text-gray-400 mt-0.5">{{ sev.descripcion }}</p>
                   </div>
                 </div>
@@ -134,22 +152,26 @@
 
           <p class="text-sm text-gray-400">Selecciona los departamentos que deben ser notificados</p>
 
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            @for (dep of departamentos; track dep.id) {
+          @if (departamentos().length === 0) {
+            <p class="text-xs text-gray-400 italic">Cargando departamentos...</p>
+          }
+
+          <div class="grid grid-cols-2 gap-3">
+            @for (dep of departamentos(); track dep.id_departamento) {
               <button
                 type="button"
-                (click)="toggleDepartamento(dep.id)"
+                (click)="toggleDepartamento(dep.id_departamento)"
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all duration-200 active:scale-95"
-                [class.border-blue-400]="departamentosSeleccionados().has(dep.id)"
-                [class.border-2]="departamentosSeleccionados().has(dep.id)"
-                [class.bg-blue-50]="departamentosSeleccionados().has(dep.id)"
-                [class.border-gray-200]="!departamentosSeleccionados().has(dep.id)"
-                [class.bg-white]="!departamentosSeleccionados().has(dep.id)">
-                <div class="w-4 h-4 rounded flex items-center justify-center shrink-0 transition-all duration-200"
-                  [class.bg-blue-500]="departamentosSeleccionados().has(dep.id)"
-                  [class.border-2]="!departamentosSeleccionados().has(dep.id)"
-                  [class.border-gray-300]="!departamentosSeleccionados().has(dep.id)">
-                  @if (departamentosSeleccionados().has(dep.id)) {
+                [class.border-blue-400]="departamentosSeleccionados().has(dep.id_departamento)"
+                [class.border-2]="departamentosSeleccionados().has(dep.id_departamento)"
+                [class.bg-blue-50]="departamentosSeleccionados().has(dep.id_departamento)"
+                [class.border-gray-200]="!departamentosSeleccionados().has(dep.id_departamento)"
+                [class.bg-white]="!departamentosSeleccionados().has(dep.id_departamento)">
+                <div class="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 transition-all duration-200"
+                  [class.bg-blue-500]="departamentosSeleccionados().has(dep.id_departamento)"
+                  [class.border-2]="!departamentosSeleccionados().has(dep.id_departamento)"
+                  [class.border-gray-300]="!departamentosSeleccionados().has(dep.id_departamento)">
+                  @if (departamentosSeleccionados().has(dep.id_departamento)) {
                     <svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                     </svg>
@@ -161,26 +183,45 @@
           </div>
         </section>
 
+        <!-- ── Mensajes de estado ── -->
+        @if (mensajeError()) {
+          <div class="px-4 py-3 rounded-2xl bg-red-50 border border-red-200 text-sm text-red-700">
+            {{ mensajeError() }}
+          </div>
+        }
+        @if (mensajeExito()) {
+          <div class="px-4 py-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-sm text-emerald-700 flex items-center gap-2">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+            </svg>
+            {{ mensajeExito() }}
+          </div>
+        }
+
         <!-- ── Botones ── -->
-        <div class="flex flex-col gap-3 pt-2 sm:flex-row">
+        <div class="flex gap-3 pt-2">
           <button
             type="button"
             (click)="cancelar()"
-            class="flex-1 py-3.5 rounded-2xl border border-gray-200 bg-white text-gray-600 font-medium text-sm hover:bg-gray-50 transition-all duration-200 active:scale-95">
+            [disabled]="enviando()"
+            class="flex-1 py-3.5 rounded-2xl border border-gray-200 bg-white text-gray-600 font-medium text-sm hover:bg-gray-50 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
             Cancelar
           </button>
           <button
             type="button"
             (click)="registrar()"
-            class="flex-1 py-3.5 rounded-2xl bg-linear-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-200 active:scale-95">
-            Registrar Incidente
+            [disabled]="!formularioCompleto() || enviando()"
+            class="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-semibold text-sm shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-blue-500 disabled:hover:to-cyan-400">
+            @if (enviando()) {
+              Enviando...
+            } @else {
+              Registrar Incidente
+            }
           </button>
         </div>
 
       </div>
     </app-glass-card>
-
-    <ng-container *ngComponentOutlet="toastComponent; inputs: { items: toasts() }"></ng-container>
 
   </div>
 </div>

@@ -10,6 +10,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.example.vigilapp.exception.CheckinTurnoNotFoundException;
 import com.example.vigilapp.exception.CheckpointNotFoundException;
+import com.example.vigilapp.exception.DepartamentoNotFoundException;
 import com.example.vigilapp.exception.IncidenteNotFoundException;
 import com.example.vigilapp.exception.MetricasDocenteNotFoundException;
 import com.example.vigilapp.exception.NotificacionNotFoundException;
@@ -29,6 +30,7 @@ public class HandlerExceptionController {
     @ExceptionHandler({
         CheckinTurnoNotFoundException.class,
         CheckpointNotFoundException.class,
+        DepartamentoNotFoundException.class,
         IncidenteNotFoundException.class,
         MetricasDocenteNotFoundException.class,
         NotificacionNotFoundException.class,
