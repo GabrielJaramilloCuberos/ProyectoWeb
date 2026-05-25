@@ -67,24 +67,21 @@ export class Shifts {
   };
 
   constructor() {
-    const shifts$   = this.adminService.refresh$.pipe(
+    const shifts$ = this.adminService.refresh$.pipe(
       startWith(undefined as void),
       switchMap(() => this.adminService.getShifts().pipe(
-        map(items => items.length > 0 ? items : MOCK_SHIFTS),
         catchError(() => of(MOCK_SHIFTS))
       ))
     );
     const teachers$ = this.adminService.refresh$.pipe(
       startWith(undefined as void),
       switchMap(() => this.adminService.getTeachers().pipe(
-        map(items => items.length > 0 ? items : MOCK_TEACHERS),
         catchError(() => of(MOCK_TEACHERS))
       ))
     );
-    const zones$    = this.adminService.refresh$.pipe(
+    const zones$ = this.adminService.refresh$.pipe(
       startWith(undefined as void),
       switchMap(() => this.adminService.getZones().pipe(
-        map(items => items.length > 0 ? items : MOCK_ZONES),
         catchError(() => of(MOCK_ZONES))
       ))
     );
@@ -220,6 +217,17 @@ export class Shifts {
     this.isAddOpen = true;
   }
 
+  getHourSlots(): string[] {
+    return Array.from({ length: 14 }, (_, i) => {
+      const h = i + 6;
+      return `${String(h).padStart(2, '0')}:00`;
+    });
+  }
+
+  getShiftsForHour(shifts: Shift[], hour: string): Shift[] {
+    return shifts.filter(s => s.startTime.substring(0, 2) === hour.substring(0, 2));
+  }
+
   private firstOfMonth(d: Date): Date {
     return new Date(d.getFullYear(), d.getMonth(), 1);
   }
@@ -243,23 +251,19 @@ export class Shifts {
     const firstDay = new Date(year, m, 1);
     const daysInMonth = new Date(year, m + 1, 0).getDate();
 
-    // Monday = 0, ..., Sunday = 6
     const firstWeekday = (firstDay.getDay() + 6) % 7;
 
     const days: CalendarDay[] = [];
 
-    // Leading days from previous month
     for (let i = firstWeekday; i > 0; i--) {
       const d = new Date(year, m, 1 - i);
       days.push(this.makeDay(d, false, shifts, selectedDay));
     }
 
-    // Current month
     for (let d = 1; d <= daysInMonth; d++) {
       days.push(this.makeDay(new Date(year, m, d), true, shifts, selectedDay));
     }
 
-    // Trailing days to complete 6 rows (42 cells)
     while (days.length < 42) {
       const last = days[days.length - 1];
       const [ly, lm, ld] = last.date.split('-').map(Number);
@@ -284,15 +288,5 @@ export class Shifts {
       pending: dayShifts.filter(s => s.status === 'pending').length,
       missed:  dayShifts.filter(s => s.status === 'missed').length
     };
-  }
-  getHourSlots(): string[] {
-    return Array.from({ length: 14 }, (_, i) => {
-      const h = i + 6;
-      return `${String(h).padStart(2, '0')}:00`;
-    });
-  }
-
-  getShiftsForHour(shifts: Shift[], hour: string): Shift[] {
-    return shifts.filter(s => s.startTime.substring(0, 2) === hour.substring(0, 2));
   }
 }

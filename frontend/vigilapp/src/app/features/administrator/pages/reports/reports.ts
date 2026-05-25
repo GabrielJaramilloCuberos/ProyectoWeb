@@ -53,31 +53,27 @@ export class Reports {
   vm$: Observable<ReportsVM>;
 
   constructor() {
-    const auditLogs$   = this.adminService.refresh$.pipe(
+    const auditLogs$ = this.adminService.refresh$.pipe(
       startWith(undefined as void),
       switchMap(() => this.adminService.getAuditLogs().pipe(
-        map(logs => logs.length > 0 ? logs : MOCK_AUDIT_LOGS),
         catchError(() => of(MOCK_AUDIT_LOGS))
       ))
     );
-    const incidents$   = this.adminService.refresh$.pipe(
+    const incidents$ = this.adminService.refresh$.pipe(
       startWith(undefined as void),
       switchMap(() => this.adminService.getIncidents().pipe(
-        map(items => items.length > 0 ? items : MOCK_INCIDENTS),
         catchError(() => of(MOCK_INCIDENTS))
       ))
     );
     const leaderboard$ = this.adminService.refresh$.pipe(
       startWith(undefined as void),
       switchMap(() => this.adminService.getLeaderboard().pipe(
-        map(items => items.length > 0 ? items : MOCK_LEADERBOARD),
         catchError(() => of(MOCK_LEADERBOARD))
       ))
     );
-    const shifts$      = this.adminService.refresh$.pipe(
+    const shifts$ = this.adminService.refresh$.pipe(
       startWith(undefined as void),
       switchMap(() => this.adminService.getShifts().pipe(
-        map(items => items.length > 0 ? items : MOCK_SHIFTS),
         catchError(() => of(MOCK_SHIFTS))
       ))
     );

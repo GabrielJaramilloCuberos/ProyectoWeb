@@ -1,8 +1,10 @@
 package com.example.vigilapp.controllers;
 
+import com.example.vigilapp.entities.Incidente;
 import com.example.vigilapp.entities.Turno;
 import com.example.vigilapp.entities.Usuario;
 import com.example.vigilapp.entities.Zona;
+import com.example.vigilapp.services.IncidenteService;
 import com.example.vigilapp.services.TurnoService;
 import com.example.vigilapp.services.UsuarioService;
 import com.example.vigilapp.services.ZonaService;
@@ -23,13 +25,16 @@ public class AdminController {
     private final ZonaService zonaService;
     private final TurnoService turnoService;
     private final UsuarioService usuarioService;
+    private final IncidenteService incidenteService;
 
     public AdminController(ZonaService zonaService,
                            TurnoService turnoService,
-                           UsuarioService usuarioService) {
-        this.zonaService    = zonaService;
-        this.turnoService   = turnoService;
-        this.usuarioService = usuarioService;
+                           UsuarioService usuarioService,
+                           IncidenteService incidenteService) {
+        this.zonaService      = zonaService;
+        this.turnoService     = turnoService;
+        this.usuarioService   = usuarioService;
+        this.incidenteService = incidenteService;
     }
 
     // ─────────────────────────────────────────
@@ -97,11 +102,10 @@ public class AdminController {
         try {
             result = usuarioService.getAll().stream()
                     .filter(u -> u.getRol() != null &&
-                                 u.getRol().getNombre().equalsIgnoreCase("DOCENTE"))
+                                 u.getRol().getNombre().equalsIgnoreCase("PROFESOR"))
                     .map(this::teacherToMap)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            // UsuarioService lanza excepción si no hay usuarios — retornamos lista vacía
             result = List.of();
         }
         return ResponseEntity.ok(result);
@@ -110,8 +114,8 @@ public class AdminController {
     private Map<String, Object> teacherToMap(Usuario u) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id",         String.valueOf(u.getId_usuario()));
-        m.put("name",       u.getNombre());   // Usuario solo tiene nombre, sin apellido
-        m.put("department", "General");        // No existe en la entidad
+        m.put("name",       u.getNombre());
+        m.put("department", "General");
         m.put("isActive",   u.getEstado() != null ? u.getEstado() : true);
         return m;
     }
@@ -221,8 +225,30 @@ public class AdminController {
     }
 
     @GetMapping("/incidents")
-    public ResponseEntity<List<Object>> getIncidents() {
-        return ResponseEntity.ok(List.of());
+    public ResponseEntity<List<Map<String, Object>>> getIncidents() {
+        List<Map<String, Object>> result;
+        try {
+            result = incidenteService.getAll().stream()
+                    .map(this::incidentToMap)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            result = List.of();
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    private Map<String, Object> incidentToMap(Incidente i) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("id",          String.valueOf(i.getId_incidente()));
+        m.put("severity",    i.getSeveridad() != null ? i.getSeveridad().getCodigo() : "S1");
+        m.put("type",        i.getTipoIncidente() != null ? i.getTipoIncidente().getNombre() : "");
+        m.put("description", i.getDescripcion());
+        m.put("zoneName",    i.getZona() != null ? i.getZona().getNombre() : "");
+        m.put("teacherName", i.getTurno() != null && i.getTurno().getDocente() != null
+                             ? i.getTurno().getDocente().getNombre() : "");
+        m.put("resolved",    false);
+        m.put("timestamp",   i.getFecha_hora().toString());
+        return m;
     }
 
     @GetMapping("/leaderboard")
