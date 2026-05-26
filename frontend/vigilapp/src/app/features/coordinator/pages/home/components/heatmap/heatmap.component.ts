@@ -1,9 +1,14 @@
-import { isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, OnDestroy, PLATFORM_ID, ViewChild, inject } from '@angular/core';
 
-type ZonaVigilancia = {
+import { HEATMAP_POLYGONS } from '../../coordinator-zone-catalog';
+import { HeatmapColorLegend } from './heatmap-color-legend/heatmap-color-legend';
+
+type ZoneMapMode = 'satellite' | 'simple';
+
+type HeatmapZone = {
   nombre: string;
-  intensidad: number; // 1-10
+  accidentCount: number;
   puntos: [number, number][];
 };
 
@@ -26,6 +31,16 @@ type ZonaVigilancia = {
         </div>
       </div>
 
+      <div class="flex justify-start px-1">
+        <button
+          type="button"
+          class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:text-slate-950"
+          (click)="toggleBaseLayer()"
+        >
+          {{ mapMode === 'satellite' ? 'Ver mapa simple' : 'Ver satélite' }}
+        </button>
+      </div>
+
       <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm" style="position: relative; z-index: 0;">
         <div class="h-128 w-full" style="position: relative; z-index: 0;">
           <div #mapContainer class="h-full w-full" style="position: relative; z-index: auto;"></div>
@@ -44,84 +59,16 @@ export class HeatmapComponent implements AfterViewInit, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly center: [number, number] = [4.7330, -74.0415];
   private readonly initialZoom = 19;
+  private leaflet: any | null = null;
+  private activeBaseLayer: any | null = null;
 
-  // Múltiples zonas de vigilancia con nombre e intensidad (1-10)
-  private readonly zonasPolygon: ZonaVigilancia[] = [
-    {
-      nombre: 'Parque Bachillerato Izquierdo',
-      intensidad: 4,
-      puntos: [
-        [4.733541, -74.042525], // Superior izquierda
-        [4.733514, -74.042429], // Superior derecha
-        [4.732600, -74.042587], // Inferior derecha
-        [4.732592, -74.042740], // Inferior izquierda
-      ],
-    },
-    {
-      nombre: 'Parque Bachillerato central',
-      intensidad: 5,
-      puntos: [
-        [4.733333, -74.041898], // Superior izquierda
-        [4.733305, -74.041814], // Superior derecha
-        [4.733081, -74.041651], // Inferior derecha
-        [4.732696, -74.041736], // Inferior izquierda
-        [4.732633, -74.041821], 
-        [4.732811, -74.041944],
-      ],
-    },
-    {
-      nombre: 'Parque preescolar',
-      intensidad: 4,
-      puntos: [
-        [4.733081, -74.041329], // Superior izquierda
-        [4.732997, -74.040983], // Superior derecha
-        [4.732449, -74.041150], // Inferior derecha
-        [4.732536, -74.041600],
-        [4.733050, -74.041491],
-        [4.733026, -74.041338],
-      ],
-    },
-    {
-      nombre: 'Coliseo',
-      intensidad: 10,
-      puntos: [
-        [4.733415, -74.041596], // Superior izquierda
-        [4.733355, -74.041279], // Superior derecha
-        [4.733028, -74.041366], // Inferior derecha
-        [4.733090, -74.041666],
-      ],
-    },
-    {
-      nombre: 'Cancha baloncesto',
-      intensidad: 8,
-      puntos: [
-        [4.733388, -74.041263], // Superior izquierda
-        [4.733347, -74.041086], // Superior derecha
-        [4.733048, -74.041147], // Inferior derecha
-        [4.733090, -74.041331],
-      ],
-    },
-    {
-      nombre: 'Cafeteria Bachillerato',
-      intensidad: 1,
-      puntos: [
-        [4.733230, -74.042374], // Superior izquierda
-        [4.733167, -74.042031], // Superior derecha
-        [4.733050, -74.042053], // Inferior derecha
-        [4.733120, -74.042394],
-      ],
-    },
-    {
-      nombre: 'Cafeteria Preescolar',
-      intensidad: 1,
-      puntos: [
-        [4.732798, -74.041685], // Superior izquierda
-        [4.732778, -74.041604], // Superior derecha
-        [4.732574, -74.041633], // Inferior derecha
-        [4.732578, -74.041712],
-      ],
-    },
-  ];
+  protected mapMode: ZoneMapMode = 'satellite';
+
+  private readonly zonasPolygon: HeatmapZone[] = HEATMAP_POLYGONS.map(zone => ({
+    nombre: zone.nombre,
+    accidentCount: zone.accidentCount,
+    puntos: zone.points,
+  }));
 
   private map: import('leaflet').Map | null = null;
   private polygons: any[] = [];
@@ -133,82 +80,81 @@ export class HeatmapComponent implements AfterViewInit, OnDestroy {
 
     const leafletModule = await import('leaflet');
     const L = leafletModule.default;
+    this.leaflet = leafletModule.default;
 
     this.map = L.map(this.mapContainer.nativeElement, {
       center: this.center,
       zoom: this.initialZoom,
-      minZoom: this.initialZoom,
+      minZoom: 17,
+      maxZoom: 19,
       zoomControl: true,
       preferCanvas: true,
     });
 
-    // Esri World Imagery - Vista satelital muy detallada
-    L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      {
-        attribution: 'Tiles &copy; Esri',
-        maxZoom: 20,
-        minZoom: 1,
-      }
-    ).addTo(this.map!);
+    this.setBaseLayer(L, this.mapMode);
 
     // Crear polígonos de zonas de vigilancia
     this.zonasPolygon.forEach((zona) => {
-      const color = this.getColorForIntensidad(zona.intensidad);
-      console.log(`Zona: ${zona.nombre}, Intensidad: ${zona.intensidad}, Color: ${color}`);
+      const color = this.getColorForAccidents(zona.accidentCount);
+      console.log(`Zona: ${zona.nombre}, Numero de accidentes: ${zona.accidentCount}, Color: ${color}`);
       
       const polygon = L.polygon(zona.puntos, {
-        color: color,
+        color,
         weight: 2,
-        opacity: 0.9,
+        opacity: 0.85,
         fillColor: color,
-        fillOpacity: 0.7,
+        fillOpacity: 0.45,
       }).addTo(this.map!);
 
-      // Popup con información de la zona
       polygon.bindPopup(`
         <div class="text-sm font-medium">
           <p class="font-bold text-base">${zona.nombre}</p>
-          <p class="text-xs text-gray-600 mt-1">Intensidad: <span class="font-semibold">${zona.intensidad}/10</span></p>
-          <p class="text-xs text-gray-600">Puntos: ${zona.puntos.length}</p>
+          <p class="text-xs text-gray-600 mt-1">Número de accidentes: <span class="font-semibold">${zona.accidentCount}</span></p>
         </div>
       `);
 
       this.polygons.push(polygon);
     });
-
-    console.log(`${this.polygons.length} zona(s) de vigilancia cargada(s) correctamente`);
   }
 
   ngOnDestroy(): void {
     if (this.map) {
-      // Limpiar todos los polígonos
       this.polygons.forEach(polygon => polygon.remove());
       this.polygons = [];
+      this.activeBaseLayer = null;
       
       this.map.remove();
       this.map = null;
+      this.activeBaseLayer = null;
     }
   }
 
-  public addZonePolygon(zona: ZonaVigilancia): void {
+  toggleBaseLayer(): void {
+    if (!this.map || !this.leaflet) {
+      return;
+    }
+
+    this.mapMode = this.mapMode === 'satellite' ? 'simple' : 'satellite';
+    this.setBaseLayer(this.leaflet, this.mapMode);
+  }
+
+  public addZonePolygon(zona: HeatmapZone): void {
     if (this.map) {
       const leaflet = (window as any).L;
-      const color = this.getColorForIntensidad(zona.intensidad);
-      
+      const color = this.getColorForAccidents(zona.accidentCount);
+
       const polygon = leaflet.polygon(zona.puntos, {
-        color: color,
+        color,
         weight: 2,
-        opacity: 0.9,
+        opacity: 0.85,
         fillColor: color,
-        fillOpacity: 0.4,
+        fillOpacity: 0.45,
       }).addTo(this.map);
 
       polygon.bindPopup(`
         <div class="text-sm font-medium">
           <p class="font-bold text-base">${zona.nombre}</p>
-          <p class="text-xs text-gray-600 mt-1">Intensidad: <span class="font-semibold">${zona.intensidad}/10</span></p>
-          <p class="text-xs text-gray-600">Puntos: ${zona.puntos.length}</p>
+          <p class="text-xs text-gray-600 mt-1">Número de accidentes: <span class="font-semibold">${zona.accidentCount}</span></p>
         </div>
       `);
 
@@ -216,29 +162,27 @@ export class HeatmapComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  public updateAllZonePolygons(newZones: ZonaVigilancia[]): void {
-    // Limpiar polígonos anteriores
+  public updateAllZonePolygons(newZones: HeatmapZone[]): void {
     this.polygons.forEach(polygon => polygon.remove());
     this.polygons = [];
 
     if (this.map) {
       const leaflet = (window as any).L;
       newZones.forEach((zona) => {
-        const color = this.getColorForIntensidad(zona.intensidad);
-        
+        const color = this.getColorForAccidents(zona.accidentCount);
+
         const polygon = leaflet.polygon(zona.puntos, {
-          color: color,
+          color,
           weight: 2,
-          opacity: 0.1,
+          opacity: 0.85,
           fillColor: color,
-          fillOpacity: 0.1,
+          fillOpacity: 0.35,
         }).addTo(this.map!);
 
         polygon.bindPopup(`
           <div class="text-sm font-medium">
             <p class="font-bold text-base">${zona.nombre}</p>
-            <p class="text-xs text-gray-600 mt-1">Intensidad: <span class="font-semibold">${zona.intensidad}/10</span></p>
-            <p class="text-xs text-gray-600">Puntos: ${zona.puntos.length}</p>
+            <p class="text-xs text-gray-600 mt-1">Número de accidentes: <span class="font-semibold">${zona.accidentCount}</span></p>
           </div>
         `);
 
@@ -247,42 +191,49 @@ export class HeatmapComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private getColorForIntensidad(intensidad: number): string {
-    // Escala de riesgo: 1-3 VERDE (Low), 4-7 NARANJA (Medium), 8-9 ROJO (High), 10 ROJO OSCURO (Extreme)
-    if (intensidad <= 3) {
-      // Verde: Low (1-3)
-      const ratio = intensidad / 3;
-      return this.interpolateColor('#22c55e', '#16a34a', ratio);
-    } else if (intensidad <= 7) {
-      // Naranja: Medium (4-7)
-      const ratio = (intensidad - 3) / 4;
-      return this.interpolateColor('#fbbf24', '#d97706', ratio);
-    } else if (intensidad <= 9) {
-      // Rojo: High (8-9)
-      const ratio = (intensidad - 7) / 2;
-      return this.interpolateColor('#f87171', '#dc2626', ratio);
-    } else {
-      // Rojo muy oscuro: Extreme (10)
-      return '#7f1d1d';
+  private setBaseLayer(L: any, mode: ZoneMapMode): void {
+    if (!this.map) {
+      return;
     }
+
+    if (this.activeBaseLayer) {
+      this.map.removeLayer(this.activeBaseLayer);
+      this.activeBaseLayer = null;
+    }
+
+    this.activeBaseLayer = mode === 'satellite'
+      ? L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+          attribution: 'Tiles &copy; Esri',
+          maxZoom: 20,
+          minZoom: 1,
+        })
+      : L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+          maxZoom: 20,
+          minZoom: 1,
+        });
+
+    this.activeBaseLayer.addTo(this.map);
   }
 
-  private interpolateColor(color1: string, color2: string, ratio: number): string {
-    const c1 = parseInt(color1.slice(1), 16);
-    const c2 = parseInt(color2.slice(1), 16);
+  private getColorForAccidents(accidentCount: number): string {
+    if (accidentCount <= 1) {
+      return '#16a34a';
+    }
 
-    const r1 = (c1 >> 16) & 255;
-    const g1 = (c1 >> 8) & 255;
-    const b1 = c1 & 255;
+    if (accidentCount <= 2) {
+      return '#d97706';
+    }
 
-    const r2 = (c2 >> 16) & 255;
-    const g2 = (c2 >> 8) & 255;
-    const b2 = c2 & 255;
+    if (accidentCount <= 3) {
+      return '#ea580c';
+    }
 
-    const r = Math.round(r1 + (r2 - r1) * ratio);
-    const g = Math.round(g1 + (g2 - g1) * ratio);
-    const b = Math.round(b1 + (b2 - b1) * ratio);
+    if (accidentCount <= 5) {
+      return '#dc2626';
+    }
 
-    return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+    return '#7f1d1d';
   }
+
 }

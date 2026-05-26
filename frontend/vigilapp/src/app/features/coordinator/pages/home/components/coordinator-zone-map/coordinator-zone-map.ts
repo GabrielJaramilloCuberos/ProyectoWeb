@@ -24,9 +24,12 @@ type ZoneMetrics = {
 
 const ZONE_LAYOUTS: Record<string, ZoneLayout> = {
   z1: { left: '18%', top: '25%', size: '5.5rem' },
-  z2: { left: '71%', top: '24%', size: '6rem' },
-  z3: { left: '47%', top: '56%', size: '6.5rem' },
-  z4: { left: '75%', top: '77%', size: '5.4rem' },
+  z2: { left: '52%', top: '24%', size: '6rem' },
+  z3: { left: '33%', top: '66%', size: '5.6rem' },
+  z4: { left: '66%', top: '53%', size: '6.4rem' },
+  z5: { left: '79%', top: '58%', size: '5.8rem' },
+  z6: { left: '24%', top: '79%', size: '5.2rem' },
+  z7: { left: '70%', top: '80%', size: '5.2rem' },
 };
 
 @Component({

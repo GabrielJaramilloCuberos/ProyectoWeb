@@ -1,15 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-export interface IncidentePayload {
-  fecha_hora: string;
-  descripcion: string;
-  turno:         { id_turno: number };
-  zona:          { id_zona: number };
-  tipoIncidente: { id_tipo: number };
-  severidad:     { id_severidad: number };
-}
 
 export interface Incidente {
   id_incidente: number;
@@ -23,14 +14,16 @@ export interface Incidente {
 
 @Injectable({ providedIn: 'root' })
 export class IncidenteService {
-  private http   = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/incidentes';
+  private static readonly API_BASE = 'https://vigilapp-backend.onrender.com';
+  private apiUrl = IncidenteService.API_BASE + '/api/incidentes';
+
+  constructor(private http: HttpClient) {}
 
   getIncidentes(): Observable<Incidente[]> {
     return this.http.get<Incidente[]>(this.apiUrl);
   }
 
-  crearIncidente(payload: IncidentePayload): Observable<Incidente> {
+  crearIncidente(payload: any): Observable<Incidente> {
     return this.http.post<Incidente>(this.apiUrl, payload);
   }
 }

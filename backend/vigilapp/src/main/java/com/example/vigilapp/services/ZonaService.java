@@ -17,11 +17,7 @@ public class ZonaService {
     }
 
     public List<Zona> getAll() {
-        List<Zona> zonas = zonaRepository.findAll();
-        if (zonas.isEmpty()) {
-            throw new ZonaNotFoundException("No se encontraron zonas");
-        }
-        return zonas;
+        return zonaRepository.findAll();
     }
 
     public Zona getById(Long id) {

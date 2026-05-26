@@ -1,4 +1,4 @@
-export type ShiftStatus = 'active' | 'missed' | 'completed' | 'pending';
+export type ShiftStatus = 'active' | 'missed' | 'completed' | 'pending' | 'available' | 'assigned';
 
 export type IncidentSeverity = 'S1' | 'S2' | 'S3';
 
@@ -20,7 +20,7 @@ export type CoordinatorZone = {
   description: string;
   capacity: number;
   checkpoints: string[];
-  intensidad?: number; // 1-10: Low (1-3), Medium (4-7), High (8-9), Extreme (10)
+  intensidad?: number;
 };
 
 export type CoordinatorShift = {
