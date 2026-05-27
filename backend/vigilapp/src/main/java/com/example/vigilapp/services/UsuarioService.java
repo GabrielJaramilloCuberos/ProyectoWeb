@@ -27,11 +27,7 @@ public class UsuarioService {
     }
 
     public List<Usuario> getAll() {
-        List<Usuario> usuarios = usuarioRepository.findAll();
-        if (usuarios.isEmpty()) {
-            throw new UsuarioNotFoundException("No se encontraron usuarios");
-        }
-        return usuarios;
+        return usuarioRepository.findAll();
     }
 
     public Usuario getById(Long id) {

@@ -23,11 +23,7 @@ public class ReasignacionService {
     }
 
     public List<Reasignacion> getAll() {
-        List<Reasignacion> reasignaciones = reasignacionRepository.findAll();
-        if (reasignaciones.isEmpty()) {
-            throw new ReasignacionNotFoundException("No se encontraron reasignaciones");
-        }
-        return reasignaciones;
+        return reasignacionRepository.findAll();
     }
 
     public Reasignacion getById(Long id) {

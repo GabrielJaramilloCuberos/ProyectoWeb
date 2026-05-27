@@ -17,11 +17,7 @@ public class NotificacionService {
     }
 
     public List<Notificacion> getAll() {
-        List<Notificacion> notificaciones = notificacionRepository.findAll();
-        if (notificaciones.isEmpty()) {
-            throw new NotificacionNotFoundException("No se encontraron notificaciones");
-        }
-        return notificaciones;
+        return notificacionRepository.findAll();
     }
 
     public Notificacion getById(Long id) {

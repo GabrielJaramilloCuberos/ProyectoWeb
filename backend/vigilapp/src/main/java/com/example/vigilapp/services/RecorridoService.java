@@ -17,11 +17,7 @@ public class RecorridoService {
     }
 
     public List<Recorrido> getAll() {
-        List<Recorrido> recorridos = recorridoRepository.findAll();
-        if (recorridos.isEmpty()) {
-            throw new RecorridoNotFoundException("No se encontraron recorridos");
-        }
-        return recorridos;
+        return recorridoRepository.findAll();
     }
 
     public Recorrido getById(Long id) {

@@ -17,11 +17,7 @@ public class TipoIncidenteService {
     }
 
     public List<TipoIncidente> getAll() {
-        List<TipoIncidente> tiposIncidente = tipoIncidenteRepository.findAll();
-        if (tiposIncidente.isEmpty()) {
-            throw new TipoIncidenteNotFoundException("No se encontraron tipos de incidente");
-        }
-        return tiposIncidente;
+        return tipoIncidenteRepository.findAll();
     }
 
     public TipoIncidente getById(Long id) {

@@ -17,10 +17,8 @@ public class CheckinTurnoService {
     }
 
     public List<CheckinTurno> getAll() {
-        List<CheckinTurno> checkins = checkinTurnoRepository.findAll();
-        if (checkins.isEmpty()) {
-            throw new CheckinTurnoNotFoundException("No se encontraron checkins de turno");
-        }
+        return checkinTurnoRepository.findAll();
+    }
         return checkins;
     }
 

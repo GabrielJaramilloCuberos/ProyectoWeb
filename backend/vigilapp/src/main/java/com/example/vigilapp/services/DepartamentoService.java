@@ -17,11 +17,7 @@ public class DepartamentoService {
     }
 
     public List<Departamento> getAll() {
-        List<Departamento> departamentos = departamentoRepository.findAll();
-        if (departamentos.isEmpty()) {
-            throw new DepartamentoNotFoundException("No se encontraron departamentos");
-        }
-        return departamentos;
+        return departamentoRepository.findAll();
     }
 
     public Departamento getById(Long id) {

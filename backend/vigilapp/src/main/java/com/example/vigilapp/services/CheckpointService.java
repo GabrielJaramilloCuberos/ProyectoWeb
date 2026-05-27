@@ -17,11 +17,7 @@ public class CheckpointService {
     }
 
     public List<Checkpoint> getAll() {
-        List<Checkpoint> checkpoints = checkpointRepository.findAll();
-        if (checkpoints.isEmpty()) {
-            throw new CheckpointNotFoundException("No se encontraron checkpoints");
-        }
-        return checkpoints;
+        return checkpointRepository.findAll();
     }
 
     public Checkpoint getById(Long id) {

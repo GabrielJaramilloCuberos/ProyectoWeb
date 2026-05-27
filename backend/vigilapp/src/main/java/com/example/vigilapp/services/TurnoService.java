@@ -17,11 +17,7 @@ public class TurnoService {
     }
 
     public List<Turno> getAll() {
-        List<Turno> turnos = turnoRepository.findAll();
-        if (turnos.isEmpty()) {
-            throw new TurnoNotFoundException("No se encontraron turnos");
-        }
-        return turnos;
+        return turnoRepository.findAll();
     }
 
     public Turno getById(Long id) {
