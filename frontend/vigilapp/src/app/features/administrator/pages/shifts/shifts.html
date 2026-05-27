@@ -212,30 +212,39 @@
                     (click)="scheduleOnDate(vm.selectedDay)"
                     class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs font-semibold rounded-full transition-colors border-none cursor-pointer">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
-                   fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
               Asignar
             </button>
           </div>
 
-          <div *ngIf="vm.selectedDayShifts.length === 0"
-               class="bg-gray-50 rounded-xl p-5 text-center text-sm text-gray-500">
-            No hay turnos programados para este día.
-          </div>
-
-          <div *ngFor="let shift of vm.selectedDayShifts"
-               class="bg-gray-50 rounded-xl p-3 sm:p-4 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div class="px-2.5 py-0.5 rounded-full {{ statusClass(shift.status) }} flex-shrink-0">
-                <span class="text-[0.6875rem] font-semibold">{{ statusLabel(shift.status) }}</span>
+          <!-- Timeline por hora -->
+          <div class="border border-gray-100 rounded-xl overflow-hidden">
+            <div *ngFor="let hour of getHourSlots()"
+                class="flex items-stretch border-b border-gray-50 last:border-b-0">
+              <!-- Hora -->
+              <div class="w-14 flex-shrink-0 flex items-center justify-center py-2 bg-gray-50 border-r border-gray-100">
+                <span class="text-[0.65rem] font-medium text-gray-400">{{ hour }}</span>
               </div>
-              <div class="min-w-0">
-                <div class="text-sm font-semibold text-gray-900 truncate">{{ shift.zoneName }}</div>
-                <div class="text-xs text-gray-500 truncate">{{ shift.teacherName }}</div>
+              <!-- Turnos en esa hora -->
+              <div class="flex-1 min-h-[36px] flex flex-col justify-center px-2 py-1 gap-1">
+                <div *ngFor="let shift of getShiftsForHour(vm.selectedDayShifts, hour)"
+                    class="flex items-center justify-between rounded-lg px-2.5 py-1 text-xs"
+                    [class.bg-green-100]="shift.status === 'completed' || shift.status === 'active'"
+                    [class.bg-yellow-100]="shift.status === 'pending'"
+                    [class.bg-red-100]="shift.status === 'missed'">
+                  <span class="font-semibold text-gray-800 truncate">{{ shift.zoneName }}</span>
+                  <span class="text-gray-500 flex-shrink-0 ml-2">{{ shift.teacherName }}</span>
+                  <span class="text-gray-400 flex-shrink-0 ml-2">{{ shift.startTime }}–{{ shift.endTime }}</span>
+                </div>
               </div>
             </div>
-            <span class="text-xs text-gray-600 flex-shrink-0">{{ shift.startTime }} - {{ shift.endTime }}</span>
+          </div>
+
+          <div *ngIf="vm.selectedDayShifts.length === 0"
+              class="bg-gray-50 rounded-xl p-4 text-center text-sm text-gray-500">
+            No hay turnos programados para este día.
           </div>
         </div>
       </div>

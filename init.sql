@@ -181,6 +181,7 @@ ON CONFLICT (id_rol) DO NOTHING;
 -- Ajusta la secuencia de rol cuando se insertan ids manuales
 SELECT setval('rol_id_rol_seq', (SELECT COALESCE(MAX(id_rol), 1) FROM rol), true);
 
+
 -- admin123
 INSERT INTO usuario (nombre, email, password, estado, id_rol)
 VALUES ('Administrador', 'admin@ejemplo.com', '$2b$10$iI22Xfy4CIirRnjOGaEhuuY21S8kcEjGkaan79MOa3DPjF2HgmW7C', true, 1)
