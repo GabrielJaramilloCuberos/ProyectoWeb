@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface IncidentePayload {
   fecha_hora: string;
@@ -24,7 +25,7 @@ export interface Incidente {
 @Injectable({ providedIn: 'root' })
 export class IncidenteService {
   private http   = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/incidentes';
+  private apiUrl = environment.apiUrl + '/api/incidentes';
 
   getIncidentes(): Observable<Incidente[]> {
     return this.http.get<Incidente[]>(this.apiUrl);
