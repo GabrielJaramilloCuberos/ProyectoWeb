@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { of, catchError } from 'rxjs';
@@ -14,11 +15,13 @@ import { PageHeader } from '../../../../shared/ui/page-header/page-header';
 })
 export class Config implements OnInit {
   private adminService = inject(AdminService);
+  private platformId = inject(PLATFORM_ID);
 
   config: SystemConfig = { ...DEFAULT_CONFIG };
   hasChanges = false;
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     this.adminService.getConfig().pipe(
       catchError(() => of<SystemConfig>({ ...DEFAULT_CONFIG }))
     ).subscribe(c => {

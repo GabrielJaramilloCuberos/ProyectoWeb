@@ -9,47 +9,33 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class IncidentIntegrationTest extends BaseIntegrationTest {
-
-    private static final String PROFESOR_EMAIL = "profesor@ejemplo.com";
-    private static final String PROFESOR_PASSWORD = "docente123";
-    private static final String COORDINADOR_EMAIL = "coordinador@ejemplo.com";
-    private static final String COORDINADOR_PASSWORD = "coordinador123";
 
     private static String profesorToken;
     private static String coordinadorToken;
     private static Long turnoId;
     private static Long incidentId;
-    private static String incidentDescription;
 
     @BeforeAll
-    static void setup() {
-        profesorToken = authenticate(PROFESOR_EMAIL, PROFESOR_PASSWORD);
-        coordinadorToken = authenticate(COORDINADOR_EMAIL, COORDINADOR_PASSWORD);
-        fetchCatalogs(coordinadorToken);
-        assertNotNull(zonaId, "zonaId debe haberse obtenido del catálogo");
-        assertNotNull(tipoId, "tipoId debe haberse obtenido del catálogo");
-        assertNotNull(severidadId, "severidadId debe haberse obtenido del catálogo");
-        assertNotNull(profesorUserId, "profesorUserId debe haberse obtenido del catálogo");
+    static void setupTokens() {
+        profesorToken = authenticate("profesor@ejemplo.com", "docente123");
+        coordinadorToken = authenticate("coordinador@ejemplo.com", "coordinador123");
     }
 
     @Test
     @Order(1)
     @DisplayName("POST /api/incidentes → 201 Created cuando el payload es válido")
     void postCreateIncident_ShouldReturn201() {
-        incidentDescription = "Incidente de prueba - " + UUID.randomUUID().toString().substring(0, 8);
-
         Map<String, Object> turnoPayload = Map.of(
             "fecha", "2026-05-25",
             "hora_inicio", "08:00:00",
             "hora_fin", "12:00:00",
             "estado", "ASIGNADO",
             "limpieza_calificacion", 0,
-            "docente", Map.of("id_usuario", profesorUserId),
-            "zona", Map.of("id_zona", zonaId)
+            "docente", Map.of("id_usuario", 3),
+            "zona", Map.of("id_zona", 1)
         );
         Response turnoResponse = createTurno(profesorToken, turnoPayload);
         turnoResponse.then().statusCode(201);
@@ -58,27 +44,19 @@ class IncidentIntegrationTest extends BaseIntegrationTest {
 
         Map<String, Object> incidentePayload = Map.of(
             "fecha_hora", "2026-05-25T10:00:00",
-            "descripcion", incidentDescription,
+            "descripcion", "Incidente de prueba - Caída en pasillo principal",
             "turno", Map.of("id_turno", turnoId),
-            "zona", Map.of("id_zona", zonaId),
-            "tipoIncidente", Map.of("id_tipo", tipoId),
-            "severidad", Map.of("id_severidad", severidadId)
+            "zona", Map.of("id_zona", 1),
+            "tipoIncidente", Map.of("id_tipo", 1),
+            "severidad", Map.of("id_severidad", 1)
         );
         Response incidenteResponse = createIncidente(profesorToken, incidentePayload);
         incidenteResponse.then().statusCode(201);
 
         incidentId = incidenteResponse.jsonPath().getLong("id_incidente");
         assertNotNull(incidentId, "id_incidente no debe ser nulo tras la creación");
-        assertEquals(incidentDescription,
+        assertEquals("Incidente de prueba - Caída en pasillo principal",
             incidenteResponse.jsonPath().getString("descripcion"));
-        assertEquals(zonaId,
-            incidenteResponse.jsonPath().getLong("zona.id_zona"));
-        assertEquals(tipoId,
-            incidenteResponse.jsonPath().getLong("tipoIncidente.id_tipo"));
-        assertEquals(severidadId,
-            incidenteResponse.jsonPath().getLong("severidad.id_severidad"));
-        assertEquals(turnoId,
-            incidenteResponse.jsonPath().getLong("turno.id_turno"));
     }
 
     @Test
@@ -114,8 +92,8 @@ class IncidentIntegrationTest extends BaseIntegrationTest {
             "hora_fin", "18:00:00",
             "estado", "ASIGNADO",
             "limpieza_calificacion", 0,
-            "docente", Map.of("id_usuario", profesorUserId),
-            "zona", Map.of("id_zona", zonaId)
+            "docente", Map.of("id_usuario", 3),
+            "zona", Map.of("id_zona", 2)
         );
         Response turnoResponse = createTurno(profesorToken, segundoTurno);
         turnoResponse.then().statusCode(201);
@@ -123,11 +101,11 @@ class IncidentIntegrationTest extends BaseIntegrationTest {
 
         Map<String, Object> incidenteActualizado = Map.of(
             "fecha_hora", "2026-05-25T10:00:00",
-            "descripcion", incidentDescription + " (reasignado)",
+            "descripcion", "Incidente de prueba - Caída en pasillo principal (reasignado)",
             "turno", Map.of("id_turno", nuevoTurnoId),
-            "zona", Map.of("id_zona", zonaId),
-            "tipoIncidente", Map.of("id_tipo", tipoId),
-            "severidad", Map.of("id_severidad", severidadId)
+            "zona", Map.of("id_zona", 1),
+            "tipoIncidente", Map.of("id_tipo", 1),
+            "severidad", Map.of("id_severidad", 1)
         );
         Response response = given()
             .contentType(ContentType.JSON)

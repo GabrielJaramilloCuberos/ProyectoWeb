@@ -4,7 +4,7 @@
       <button *ngIf="showBack"
               type="button"
               (click)="goBack()"
-              class="w-10 h-10 flex items-center justify-center rounded-full bg-white/60 border border-white/70 hover:bg-white transition-all flex-shrink-0 shadow-sm">
+              class="w-10 h-10 flex items-center justify-center rounded-full bg-white/60 border border-white/70 hover:bg-white transition-all shrink-0 shadow-sm">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
              fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
@@ -14,7 +14,7 @@
         <h1 class="text-lg sm:text-xl font-semibold text-gray-900 truncate">{{ title }}</h1>
         <p *ngIf="subtitle" class="text-xs sm:text-sm text-gray-500">{{ subtitle }}</p>
       </div>
-      <div class="flex items-center gap-2 flex-shrink-0">
+      <div class="flex items-center gap-2 shrink-0">
         <ng-content></ng-content>
       </div>
     </div>

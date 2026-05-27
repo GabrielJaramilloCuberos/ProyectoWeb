@@ -1,12 +1,11 @@
 package com.example.vigilapp.security;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -22,7 +21,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.example.vigilapp.repositories.UsuarioRepository;
 import com.example.vigilapp.security.filter.JwtAuthenticationFilter;
 import com.example.vigilapp.security.filter.JwtValidationFilter;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 
 @Configuration
 public class SpringSecurityConfig {
@@ -53,7 +51,8 @@ public class SpringSecurityConfig {
         jwtAuthenticationFilter.setFilterProcessesUrl("/auth/login");
 
         return http.authorizeHttpRequests(auth -> auth
-        .requestMatchers("/auth/login/**").permitAll()  // Cubre GET, POST, PUT, DELETE, OPTIONS, etc.
+        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+        .requestMatchers("/auth/login/**").permitAll()
         .anyRequest().authenticated()
 )
 
@@ -69,23 +68,18 @@ public class SpringSecurityConfig {
     CorsConfigurationSource corsConfigurationSource()
     {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(Arrays.asList("*"));
+        config.setAllowedOriginPatterns(List.of(
+            "https://proyecto-web-indol.vercel.app",
+            "http://localhost:4200",
+            "http://localhost:4000"
+        ));
         config.setAllowedMethods(Arrays.asList("GET","POST","DELETE","PUT","OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("Authorization","Content-Type"));
+        config.setAllowedHeaders(Arrays.asList("Authorization","Content-Type","Accept"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config); 
         return source;
     }
-
-    @Bean
-FilterRegistrationBean<CorsFilter> corsFilter() {
-    FilterRegistrationBean<CorsFilter> corsBean = new FilterRegistrationBean<>();
-    
-    corsBean.setFilter(new CorsFilter(corsConfigurationSource()));
-    corsBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-
-    return corsBean;
-}
 }

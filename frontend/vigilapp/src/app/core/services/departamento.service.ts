@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Departamento {
   id_departamento: number;
@@ -10,7 +11,7 @@ export interface Departamento {
 @Injectable({ providedIn: 'root' })
 export class DepartamentoService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/departamentos';
+  private apiUrl = environment.apiUrl + '/api/departamentos';
 
   // Los reintentos por errores transitorios los maneja RetryInterceptor globalmente.
   getDepartamentos(): Observable<Departamento[]> {

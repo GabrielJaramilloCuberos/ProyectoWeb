@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-glass-card',
+  standalone: true,
   imports: [],
   templateUrl: './glass-card.html',
   styleUrl: './glass-card.css',

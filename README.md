@@ -85,18 +85,16 @@ ProyectoWeb/
 
 ### Recent frontend additions
 
-- Coordinator module mounted at `/coordinator`.
-- Main coordinator screen at `/coordinator/home`.
-- Zone map replaced with a **light-theme technical heatmap**.
-- Zone circles displayed by heat level (`Low`, `Medium`, `High`, `Critical`).
-- Click interaction per zone to open a technical summary with:
-  - total historical incidents,
-  - incidents in the last month,
-  - incidents in the last week,
-  - current/assigned teacher for that zone.
-- Zone detail dialog updated to consume aggregated metrics.
+- Coordinator dashboard mounted at `/coordinator`, with live monitoring preserved at `/coordinator/live` and reports at `/coordinator/analytics`.
+- Coordinator home uses reusable SVG actions and a simplified dashboard layout aligned with the current product UI.
+- Shared zone data was centralized in a feature-level catalog so coordinator, professor and heatmap views use the same zone names and metadata.
+- The heatmap now supports switching between satellite and simple map bases while keeping the heat overlay active.
+- Zone popups now show only the zone name and the number of accidents.
+- Professor incident report now uses mobile-first single-column controls, shared toast notifications, and redirects back to the professor home after submission.
+- Shared UI components were normalized to standalone form in `src/app/shared/ui` to keep global and local feature components consistent with the architecture.
 
 ---
+
 
 ## Prerequisites
 

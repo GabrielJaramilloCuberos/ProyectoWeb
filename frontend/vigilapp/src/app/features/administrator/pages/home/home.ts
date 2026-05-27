@@ -5,10 +5,12 @@ import { Observable, combineLatest, map, of, catchError, startWith, switchMap } 
 
 import { AdminService, Zone, Teacher, Shift } from '../../services/admin.service';
 import { UsuarioService } from '../../../../core/services/usuario.service';
+import { Auth } from '../../../../core/services/auth';
 import { StatCard } from '../../../../shared/ui/stat-card/stat-card';
 import { ModuleCard } from '../../../../shared/ui/module-card/module-card';
 import { Modal } from '../../../../shared/ui/modal/modal';
 import { PageHeader } from '../../../../shared/ui/page-header/page-header';
+import { MOCK_TEACHERS, MOCK_SHIFTS, MOCK_ZONES } from '../../admin.mock-data';
 
 interface StatDetail {
   id: 'zones' | 'teachers' | 'shifts' | 'compliance';
@@ -39,6 +41,7 @@ export class Home {
 
   private adminService   = inject(AdminService);
   private usuarioService = inject(UsuarioService);
+  private auth           = inject(Auth);
   private router         = inject(Router);
 
   usuario$: Observable<any> = this.usuarioService.getUsuarioActual().pipe(
@@ -52,15 +55,24 @@ export class Home {
   constructor() {
     const zones$    = this.adminService.refresh$.pipe(
       startWith(undefined as void),
-      switchMap(() => this.adminService.getZones().pipe(catchError(() => of<Zone[]>([]))))
+      switchMap(() => this.adminService.getZones().pipe(
+        map(zones => zones.length > 0 ? zones : MOCK_ZONES),
+        catchError(() => of(MOCK_ZONES))
+      ))
     );
     const teachers$ = this.adminService.refresh$.pipe(
       startWith(undefined as void),
-      switchMap(() => this.adminService.getTeachers().pipe(catchError(() => of<Teacher[]>([]))))
+      switchMap(() => this.adminService.getTeachers().pipe(
+        map(teachers => teachers.length > 0 ? teachers : MOCK_TEACHERS),
+        catchError(() => of(MOCK_TEACHERS))
+      ))
     );
     const shifts$   = this.adminService.refresh$.pipe(
       startWith(undefined as void),
-      switchMap(() => this.adminService.getShifts().pipe(catchError(() => of<Shift[]>([]))))
+      switchMap(() => this.adminService.getShifts().pipe(
+        map(shifts => shifts.length > 0 ? shifts : MOCK_SHIFTS),
+        catchError(() => of(MOCK_SHIFTS))
+      ))
     );
 
     this.viewModel$ = combineLatest([zones$, teachers$, shifts$]).pipe(
@@ -119,7 +131,7 @@ export class Home {
   }
 
   cerrarSesion(): void {
-    this.usuarioService.logout?.();
+    this.auth.logout();
     this.router.navigate(['/']);
   }
 }

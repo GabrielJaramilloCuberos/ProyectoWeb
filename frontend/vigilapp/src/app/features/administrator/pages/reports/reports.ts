@@ -11,6 +11,7 @@ import { PageHeader } from '../../../../shared/ui/page-header/page-header';
 import { Modal } from '../../../../shared/ui/modal/modal';
 import { GlassCard } from '../../../../shared/ui/glass-card/glass-card';
 import { StatCard } from '../../../../shared/ui/stat-card/stat-card';
+import { MOCK_AUDIT_LOGS, MOCK_INCIDENTS, MOCK_LEADERBOARD, MOCK_SHIFTS } from '../../admin.mock-data';
 
 type Tab = 'audit' | 'incidents' | 'performance';
 type RoleFilter = 'all' | 'docente' | 'coordinador' | 'administrador';
@@ -52,21 +53,29 @@ export class Reports {
   vm$: Observable<ReportsVM>;
 
   constructor() {
-    const auditLogs$   = this.adminService.refresh$.pipe(
+    const auditLogs$ = this.adminService.refresh$.pipe(
       startWith(undefined as void),
-      switchMap(() => this.adminService.getAuditLogs().pipe(catchError(() => of<AuditLog[]>([]))))
+      switchMap(() => this.adminService.getAuditLogs().pipe(
+        catchError(() => of(MOCK_AUDIT_LOGS))
+      ))
     );
-    const incidents$   = this.adminService.refresh$.pipe(
+    const incidents$ = this.adminService.refresh$.pipe(
       startWith(undefined as void),
-      switchMap(() => this.adminService.getIncidents().pipe(catchError(() => of<Incident[]>([]))))
+      switchMap(() => this.adminService.getIncidents().pipe(
+        catchError(() => of(MOCK_INCIDENTS))
+      ))
     );
     const leaderboard$ = this.adminService.refresh$.pipe(
       startWith(undefined as void),
-      switchMap(() => this.adminService.getLeaderboard().pipe(catchError(() => of<LeaderboardEntry[]>([]))))
+      switchMap(() => this.adminService.getLeaderboard().pipe(
+        catchError(() => of(MOCK_LEADERBOARD))
+      ))
     );
-    const shifts$      = this.adminService.refresh$.pipe(
+    const shifts$ = this.adminService.refresh$.pipe(
       startWith(undefined as void),
-      switchMap(() => this.adminService.getShifts().pipe(catchError(() => of<Shift[]>([]))))
+      switchMap(() => this.adminService.getShifts().pipe(
+        catchError(() => of(MOCK_SHIFTS))
+      ))
     );
 
     this.vm$ = combineLatest([

@@ -1,6 +1,6 @@
 -- ============================================================
 -- init.sql - Seed data for QA Test PostgreSQL container
--- Aligned with backend entities (lowercase) and Supabase schema
+-- Aligned with backend entities and frontend expectations
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS rol (
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS usuario (
 CREATE TABLE IF NOT EXISTS zona (
     id_zona     BIGSERIAL PRIMARY KEY,
     nombre      VARCHAR(150) NOT NULL,
-    descripcion VARCHAR(255) NOT NULL,
+    descripcion TEXT NOT NULL,
     tipo        VARCHAR(100) NOT NULL,
     activa      BOOLEAN      NOT NULL DEFAULT TRUE
 );
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS turno (
 CREATE TABLE IF NOT EXISTS checkpoint (
     id_checkpoint   BIGSERIAL PRIMARY KEY,
     nombre          VARCHAR(150) NOT NULL,
-    codigo_qr       VARCHAR NOT NULL,
+    codigo_qr       VARCHAR(255) NOT NULL,
     id_zona         BIGINT       NOT NULL,
     CONSTRAINT fk_checkpoint_zona FOREIGN KEY (id_zona) REFERENCES zona(id_zona)
 );
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS metricas_docente (
 
 CREATE TABLE IF NOT EXISTS notificacion (
     id_notificacion BIGSERIAL PRIMARY KEY,
-    mensaje         VARCHAR(255) NOT NULL,
+    mensaje         TEXT         NOT NULL,
     tipo            VARCHAR(100) NOT NULL,
     fecha_envio     TIMESTAMP    NOT NULL DEFAULT NOW(),
     leida           BOOLEAN      NOT NULL DEFAULT FALSE,
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS notificacion (
 
 CREATE TABLE IF NOT EXISTS reasignacion (
     id_reasignacion      BIGSERIAL PRIMARY KEY,
-    motivo              VARCHAR(255) NOT NULL,
+    motivo              TEXT         NOT NULL,
     fecha_propuesta     TIMESTAMP    NOT NULL,
     fecha_respuesta     TIMESTAMP,
     estado              VARCHAR(50)  NOT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS reasignacion (
     CONSTRAINT fk_reasignacion_docente_propuesto FOREIGN KEY (id_docente_propuesto) REFERENCES usuario(id_usuario)
 );
 
-CREATE TABLE IF NOT EXISTS checkin_turno (
+CREATE TABLE IF NOT EXISTS check_in_turno (
     id_checkin  BIGSERIAL PRIMARY KEY,
     fecha_hora  TIMESTAMP    NOT NULL DEFAULT NOW(),
     metodo      VARCHAR(100) NOT NULL,
@@ -112,13 +112,13 @@ CREATE TABLE IF NOT EXISTS departamento (
 CREATE TABLE IF NOT EXISTS severidad (
     id_severidad    BIGSERIAL PRIMARY KEY,
     codigo          VARCHAR(50)  NOT NULL,
-    descripcion     VARCHAR(255) NOT NULL
+    descripcion     TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS incidente (
     id_incidente    BIGSERIAL PRIMARY KEY,
     fecha_hora      TIMESTAMP    NOT NULL DEFAULT NOW(),
-    descripcion     VARCHAR(255) NOT NULL,
+    descripcion     TEXT         NOT NULL,
     id_turno        BIGINT       NOT NULL,
     id_zona         BIGINT       NOT NULL,
     id_tipo         BIGINT       NOT NULL,

@@ -54,5 +54,12 @@ public class IncidentLoadSimulation extends Simulation {
              details("List Incidents").responseTime().percentile3().lt(10000),
              details("List Incidents").successfulRequests().percent().gt(99.0)
          );
+        //
+        // NOTA: Thresholds relajados para Docker Desktop (CPU limitado). En producción:
+        //   .assertions(
+        //       details("List Incidents").responseTime().percentile2().lt(800),
+        //       details("List Incidents").responseTime().percentile3().lt(500),
+        //       details("List Incidents").successfulRequests().percent().gt(99.0)
+        //   );
     }
 }

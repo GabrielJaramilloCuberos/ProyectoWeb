@@ -13,7 +13,6 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.MountableFile;
 
-import java.util.List;
 import java.util.Map;
 
 @Tag("integration")
@@ -41,14 +40,6 @@ public abstract class BaseIntegrationTest {
             .withStartupTimeout(java.time.Duration.ofMinutes(5));
 
     protected static String backendBaseUrl;
-
-    protected static Long zonaId;
-    protected static String zonaNombre;
-    protected static Long tipoId;
-    protected static String tipoNombre;
-    protected static Long severidadId;
-    protected static String severidadCodigo;
-    protected static Long profesorUserId;
 
     @BeforeAll
     void startInfrastructure() {
@@ -89,14 +80,6 @@ public abstract class BaseIntegrationTest {
         return response.jsonPath().getString("token");
     }
 
-    protected static Response apiGet(String token, String path) {
-        return RestAssured
-            .given()
-            .header("Authorization", "Bearer " + token)
-            .when()
-            .get(backendBaseUrl + path);
-    }
-
     protected static Response createTurno(String token, Object turnoPayload) {
         return RestAssured
             .given()
@@ -115,36 +98,5 @@ public abstract class BaseIntegrationTest {
             .body(incidentePayload)
             .when()
             .post(backendBaseUrl + "/api/incidentes");
-    }
-
-    protected static void fetchCatalogs(String token) {
-        Response zonasResp = apiGet(token, "/api/zonas");
-        zonasResp.then().statusCode(200);
-        List<Object> zonas = zonasResp.jsonPath().getList("$");
-        if (zonas != null && !zonas.isEmpty()) {
-            zonaId = zonasResp.jsonPath().getLong("[0].id_zona");
-            zonaNombre = zonasResp.jsonPath().getString("[0].nombre");
-        }
-
-        Response tiposResp = apiGet(token, "/api/tipos-incidente");
-        tiposResp.then().statusCode(200);
-        List<Object> tipos = tiposResp.jsonPath().getList("$");
-        if (tipos != null && !tipos.isEmpty()) {
-            tipoId = tiposResp.jsonPath().getLong("[0].id_tipo");
-            tipoNombre = tiposResp.jsonPath().getString("[0].nombre");
-        }
-
-        Response sevResp = apiGet(token, "/api/severidades");
-        sevResp.then().statusCode(200);
-        List<Object> sevs = sevResp.jsonPath().getList("$");
-        if (sevs != null && !sevs.isEmpty()) {
-            severidadId = sevResp.jsonPath().getLong("[0].id_severidad");
-            severidadCodigo = sevResp.jsonPath().getString("[0].codigo");
-        }
-
-        Response usuariosResp = apiGet(token, "/api/usuarios");
-        usuariosResp.then().statusCode(200);
-        profesorUserId = usuariosResp.jsonPath()
-            .getLong("find { it.rol.nombre == 'PROFESOR' }.id_usuario");
     }
 }
