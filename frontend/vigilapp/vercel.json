@@ -1,12 +1,6 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist/vigilapp/browser",
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://api.example.com/:path*"
-    }
-  ],
   "routes": [
     {
       "src": "/(.*\\.(?:js|css|jpg|jpeg|png|gif|ico|svg|webp|woff|woff2|ttf|eot))",
