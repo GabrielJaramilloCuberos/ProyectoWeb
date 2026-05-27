@@ -19,8 +19,6 @@ public class CheckinTurnoService {
     public List<CheckinTurno> getAll() {
         return checkinTurnoRepository.findAll();
     }
-        return checkins;
-    }
 
     public CheckinTurno getById(Long id) {
         return checkinTurnoRepository.findById(id)
