@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "Checkpoint")
+@Table(name = "checkpoint")
 public class Checkpoint {
 
     @Id

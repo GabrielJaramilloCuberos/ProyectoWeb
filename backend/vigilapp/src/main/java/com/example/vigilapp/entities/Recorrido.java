@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "Recorrido")
+@Table(name = "recorrido")
 public class Recorrido {
 
     @Id

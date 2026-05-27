@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "MetricasDocente")
+@Table(name = "metricas_docente")
 public class MetricasDocente {
 
     @Id
