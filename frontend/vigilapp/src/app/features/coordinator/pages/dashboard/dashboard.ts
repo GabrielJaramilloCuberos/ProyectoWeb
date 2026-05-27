@@ -143,10 +143,12 @@ export class CoordinatorDashboard implements OnInit, OnDestroy {
       return;
     }
 
+    const now = new Date().toISOString().slice(0, 19);
     const payload = {
       motivo:          'Asignación de turno disponible',
-      fecha_propuesta: new Date().toISOString().slice(0, 19),
-      estado:          'PENDIENTE',
+      fecha_propuesta: now,
+      fecha_respuesta: now,
+      estado:          'APROBADA',
       turno:            { id_turno:   Number(shift.id) },
       docenteOriginal:  { id_usuario: Number(shift.teacherId || teacher.id) },
       docentePropuesto: { id_usuario: Number(teacher.id) },
@@ -177,10 +179,12 @@ export class CoordinatorDashboard implements OnInit, OnDestroy {
       return;
     }
 
+    const now = new Date().toISOString().slice(0, 19);
     const payload = {
       motivo:          'Reasignación solicitada por coordinador',
-      fecha_propuesta: new Date().toISOString().slice(0, 19),
-      estado:          'PENDIENTE',
+      fecha_propuesta: now,
+      fecha_respuesta: now,
+      estado:          'APROBADA',
       turno:            { id_turno:   Number(shift.id) },
       docenteOriginal:  { id_usuario: Number(shift.teacherId) },
       docentePropuesto: { id_usuario: Number(teacher.id) },
@@ -191,7 +195,7 @@ export class CoordinatorDashboard implements OnInit, OnDestroy {
         this.shifts.update(list =>
           list.map(s =>
             s.id === shift.id
-              ? { ...s, teacherId: teacher.id, teacherName: teacher.name }
+              ? { ...s, teacherId: teacher.id, teacherName: teacher.name, status: 'assigned' }
               : s
           )
         );

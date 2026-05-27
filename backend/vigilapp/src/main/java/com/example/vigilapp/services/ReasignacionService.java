@@ -1,9 +1,13 @@
 package com.example.vigilapp.services;
 
 import com.example.vigilapp.entities.Reasignacion;
+import com.example.vigilapp.entities.Turno;
 import com.example.vigilapp.exception.ReasignacionNotFoundException;
+import com.example.vigilapp.exception.TurnoNotFoundException;
 import com.example.vigilapp.repositories.ReasignacionRepository;
+import com.example.vigilapp.repositories.TurnoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -11,9 +15,11 @@ import java.util.List;
 public class ReasignacionService {
 
     private final ReasignacionRepository reasignacionRepository;
+    private final TurnoRepository turnoRepository;
 
-    public ReasignacionService(ReasignacionRepository reasignacionRepository) {
+    public ReasignacionService(ReasignacionRepository reasignacionRepository, TurnoRepository turnoRepository) {
         this.reasignacionRepository = reasignacionRepository;
+        this.turnoRepository = turnoRepository;
     }
 
     public List<Reasignacion> getAll() {
@@ -29,8 +35,20 @@ public class ReasignacionService {
                 .orElseThrow(() -> new ReasignacionNotFoundException("Reasignacion no encontrada con id: " + id));
     }
 
+    @Transactional
     public Reasignacion create(Reasignacion reasignacion) {
-        return reasignacionRepository.save(reasignacion);
+        Reasignacion saved = reasignacionRepository.save(reasignacion);
+
+        if ("APROBADA".equalsIgnoreCase(saved.getEstado())) {
+            Long idTurno = saved.getTurno().getId_turno();
+            Turno turno = turnoRepository.findById(idTurno)
+                    .orElseThrow(() -> new TurnoNotFoundException("Turno no encontrado con id: " + idTurno));
+            turno.setDocente(saved.getDocentePropuesto());
+            turno.setEstado("ASIGNADO");
+            turnoRepository.save(turno);
+        }
+
+        return saved;
     }
 
     public Reasignacion update(Long id, Reasignacion reasignacion) {
