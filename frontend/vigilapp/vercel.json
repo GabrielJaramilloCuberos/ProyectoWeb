@@ -1,8 +1,26 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/vigilapp/browser",
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/api/:path*",
+      "destination": "https://api.example.com/:path*"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*\\.(?:js|css|jpg|jpeg|png|gif|ico|svg|webp|woff|woff2|ttf|eot))",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      },
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=0, must-revalidate"
+      },
+      "dest": "/index.html"
     }
   ]
 }
