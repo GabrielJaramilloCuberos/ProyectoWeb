@@ -11,7 +11,7 @@ import { Auth } from '../../../../core/services/auth';
 import { LoginResponse } from '../../../../core/models/user/login-response';
 
 const ROUTES_BY_ROLE: Record<string, string> = {
-  'coordinador': '/coordinator',
+  'coordinador': '/coordinator/dashboard',
   'profesor': '/profesor/home',
   'administrador': '/administrator/home',
   'admin': '/administrator/home',

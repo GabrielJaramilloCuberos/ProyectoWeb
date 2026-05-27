@@ -2,6 +2,7 @@ import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject, of } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 export interface Zone {
   id: string;
@@ -91,8 +92,7 @@ export const DEFAULT_CONFIG: SystemConfig = {
 export class AdminService {
 
   private platformId = inject(PLATFORM_ID);
-  private static readonly API_BASE = 'http://localhost:8080';
-  private apiUrl = AdminService.API_BASE + '/api/admin';
+  private apiUrl = environment.apiUrl + '/api/admin';
 
   private refreshSubject = new Subject<void>();
   readonly refresh$: Observable<void> = this.refreshSubject.asObservable();

@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, throwError, timeout } from 'rxjs';
 import { LoginResponse } from '../models/user/login-response';
+import { environment } from '../../../environments/environment';
 
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
@@ -11,7 +12,7 @@ const USER_KEY = 'auth_user';
 export class Auth {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
-  private api = 'http://localhost:8080/auth';
+  private api = environment.apiUrl + '/auth';
 
   private isBrowser(): boolean {
     return isPlatformBrowser(this.platformId);

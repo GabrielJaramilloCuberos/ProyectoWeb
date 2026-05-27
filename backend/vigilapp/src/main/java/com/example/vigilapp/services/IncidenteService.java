@@ -17,11 +17,7 @@ public class IncidenteService {
     }
 
     public List<Incidente> getAll() {
-        List<Incidente> incidentes = incidenteRepository.findAll();
-        if (incidentes.isEmpty()) {
-            throw new IncidenteNotFoundException("No se encontraron incidentes");
-        }
-        return incidentes;
+        return incidenteRepository.findAll();
     }
 
     public Incidente getById(Long id) {

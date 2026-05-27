@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MetricasService {
 
-  private static readonly API_BASE = 'https://vigilapp-backend.onrender.com';
-  private apiUrl = MetricasService.API_BASE + '/api/metricas';
+  private apiUrl = environment.apiUrl + '/api/metricas';
 
   constructor(private http: HttpClient) {}
 

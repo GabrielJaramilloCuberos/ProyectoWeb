@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Zona {
   id_zona: number;
@@ -13,7 +14,7 @@ export interface Zona {
 @Injectable({ providedIn: 'root' })
 export class ZonaService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/zonas';
+  private apiUrl = environment.apiUrl + '/api/zonas';
 
   // Los reintentos por errores transitorios los maneja RetryInterceptor globalmente.
   getZonas(): Observable<Zona[]> {

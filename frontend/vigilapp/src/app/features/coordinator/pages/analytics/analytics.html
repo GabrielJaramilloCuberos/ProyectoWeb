@@ -14,11 +14,31 @@
 		</div>
 	</header>
 
-	<main class="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 sm:py-10">
+	<!-- Cargando -->
+	<div *ngIf="loading()" class="flex flex-col items-center justify-center py-32 gap-4">
+		<svg class="animate-spin h-10 w-10 text-sky-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+			<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+			<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+		</svg>
+		<p class="text-slate-500 text-sm">Cargando reportes...</p>
+	</div>
+
+	<!-- Error -->
+	<div *ngIf="!loading() && errorMessage()" class="max-w-lg mx-auto mt-20 px-4">
+		<div class="bg-red-50 border border-red-200 rounded-2xl p-8 text-center space-y-4">
+			<p class="text-red-700 font-medium">{{ errorMessage() }}</p>
+			<button type="button" (click)="retryLoad()"
+				class="px-6 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition text-sm font-medium">
+				Reintentar
+			</button>
+		</div>
+	</div>
+
+	<main *ngIf="!loading() && !errorMessage()" class="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 sm:py-10">
 		<section class="grid gap-4 rounded-4xl border border-slate-200/70 bg-white/80 p-5 shadow-sm backdrop-blur-xl sm:grid-cols-2 sm:p-6">
 			<div>
 				<label class="mb-2 block text-sm font-medium text-slate-700">Período</label>
-				<select [(ngModel)]="timeRange" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400">
+				<select [ngModel]="timeRange()" (ngModelChange)="setTimeRange($event)" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400">
 					<option value="24h">Últimas 24 horas</option>
 					<option value="7d">Últimos 7 días</option>
 					<option value="30d">Últimos 30 días</option>
@@ -27,10 +47,10 @@
 			</div>
 			<div>
 				<label class="mb-2 block text-sm font-medium text-slate-700">Zona</label>
-				<select [(ngModel)]="selectedZone" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400">
+				<select [ngModel]="selectedZone()" (ngModelChange)="setSelectedZone($event)" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400">
 					<option value="all">Todas las zonas</option>
-					@for (zone of zones; track zone.id) {
-						<option [value]="zone.id">{{ zone.name }}</option>
+					@for (zone of zonas(); track zone.id_zona) {
+						<option [value]="zone.id_zona">{{ zone.nombre }}</option>
 					}
 				</select>
 			</div>
@@ -39,19 +59,19 @@
 		<section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
 			<div class="rounded-3xl bg-sky-50 p-5">
 				<p class="text-sm text-slate-600">Total incidentes</p>
-				<p class="mt-3 text-4xl font-semibold text-sky-600">{{ totalIncidents }}</p>
+				<p class="mt-3 text-4xl font-semibold text-sky-600">{{ totalIncidents() }}</p>
 			</div>
 			<div class="rounded-3xl bg-emerald-50 p-5">
 				<p class="text-sm text-slate-600">Cumplimiento</p>
-				<p class="mt-3 text-4xl font-semibold text-emerald-600">{{ compliance }}</p>
+				<p class="mt-3 text-4xl font-semibold text-emerald-600">{{ compliance() }}</p>
 			</div>
 			<div class="rounded-3xl bg-violet-50 p-5">
 				<p class="text-sm text-slate-600">Respuesta promedio</p>
-				<p class="mt-3 text-4xl font-semibold text-violet-600">{{ responseTime }}</p>
+				<p class="mt-3 text-4xl font-semibold text-violet-600">{{ responseTime() }}</p>
 			</div>
 			<div class="rounded-3xl bg-amber-50 p-5">
 				<p class="text-sm text-slate-600">Zonas de riesgo</p>
-				<p class="mt-3 text-4xl font-semibold text-amber-600">{{ riskZones }}</p>
+				<p class="mt-3 text-4xl font-semibold text-amber-600">{{ riskZones() }}</p>
 			</div>
 		</section>
 
@@ -64,8 +84,11 @@
 					</div>
 				</div>
 
+				<div *ngIf="incidentsByZone().length === 0" class="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-500">
+					Sin datos para este filtro.
+				</div>
 				<div class="space-y-4">
-					@for (item of incidentsByZone; track item.id) {
+					@for (item of incidentsByZone(); track item.id) {
 						<div class="space-y-2">
 							<div class="flex items-center justify-between gap-3 text-sm">
 								<span class="font-medium text-slate-900">{{ item.zone }}</span>
@@ -84,8 +107,11 @@
 				<div class="mt-5 space-y-5">
 					<div>
 						<p class="mb-4 text-sm font-medium text-slate-900">Por tipo</p>
+						<div *ngIf="incidentTypes().length === 0" class="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center text-xs text-slate-500">
+							Sin incidentes en este período.
+						</div>
 						<div class="space-y-3">
-							@for (item of incidentTypes; track item.label) {
+							@for (item of incidentTypes(); track item.label) {
 								<div class="flex items-center justify-between gap-3">
 									<div class="flex min-w-0 items-center gap-3">
 										<span class="h-3 w-3 rounded-full" [ngClass]="item.color"></span>
@@ -99,8 +125,11 @@
 
 					<div>
 						<p class="mb-4 text-sm font-medium text-slate-900">Por severidad</p>
+						<div *ngIf="severityBreakdown().length === 0" class="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center text-xs text-slate-500">
+							Sin incidentes en este período.
+						</div>
 						<div class="space-y-4">
-							@for (item of severityBreakdown; track item.label) {
+							@for (item of severityBreakdown(); track item.label) {
 								<div>
 									<div class="mb-2 flex items-center justify-between gap-3 text-sm">
 										<span class="font-medium text-slate-700">{{ item.label }}</span>
@@ -120,8 +149,11 @@
 		<section class="grid gap-4 xl:grid-cols-[1.2fr_1fr]">
 			<div class="rounded-4xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur-xl sm:p-8">
 				<p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Horarios pico</p>
+				<div *ngIf="peakHours().length === 0" class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-500">
+					Sin datos para este filtro.
+				</div>
 				<div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-					@for (hour of peakHours; track hour.label) {
+					@for (hour of peakHours(); track hour.label) {
 						<div class="rounded-2xl border px-4 py-4" [ngClass]="hour.tone">
 							<p class="text-sm font-medium">{{ hour.label }}</p>
 							<p class="mt-2 text-3xl font-semibold">{{ hour.incidents }}</p>
@@ -134,9 +166,9 @@
 			<div class="rounded-4xl border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur-xl sm:p-8">
 				<p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Contexto</p>
 				<div class="mt-5 space-y-4 text-sm leading-6 text-slate-600">
-					<p>Periodo actual: {{ timeRange }}. Fecha base de operación: {{ coordinatorDay }}.</p>
-					<p>Las barras muestran concentración relativa por zona y la distribución por severidad permite identificar rápidamente dónde están los focos críticos.</p>
-					<p>Usa esta vista como reporte operativo para comparar cobertura, riesgo y respuesta antes de abrir el monitoreo en vivo.</p>
+					<p>Período actual: {{ timeRange() }}. Fecha base: {{ today() }}.</p>
+					<p>Las barras muestran concentración de incidentes por zona en el período seleccionado. La distribución por severidad permite identificar los focos críticos.</p>
+					<p>Usa esta vista como reporte operativo antes de abrir el monitoreo en vivo.</p>
 				</div>
 			</div>
 		</section>

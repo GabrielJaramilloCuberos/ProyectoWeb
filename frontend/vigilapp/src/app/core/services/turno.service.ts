@@ -1,26 +1,71 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface TurnoBackend {
+  id_turno:               number;
+  fecha:                  string;       // "2026-05-25"
+  hora_inicio:            string;       // "07:00:00"
+  hora_fin:               string;       // "09:00:00"
+  estado:                 string;       // "ACTIVO" | "COMPLETADO" | "AUSENTE" | "PENDIENTE" | "DISPONIBLE" | "ASIGNADO"
+  limpieza_calificacion:  number;
+  docente: {
+    id_usuario: number;
+    nombre:     string;
+    email:      string;
+    estado:     boolean;
+    rol: { id_rol: number; nombre: string };
+  };
+  zona: {
+    id_zona:     number;
+    nombre:      string;
+    descripcion: string;
+    tipo:        string;
+    activa:      boolean;
+  };
+}
+
+export interface TurnoPayload {
+  fecha:                 string;
+  hora_inicio:           string;
+  hora_fin:              string;
+  estado:                string;
+  limpieza_calificacion: number;
+  docente: { id_usuario: number };
+  zona:    { id_zona:    number };
+}
+
+@Injectable({ providedIn: 'root' })
 export class TurnoService {
+  private http   = inject(HttpClient);
+  private apiUrl = environment.apiUrl + '/api/turnos';
 
-  private static readonly API_BASE = 'https://vigilapp-backend.onrender.com';
-  private apiUrl = TurnoService.API_BASE + '/api/turnos'; 
-
-  constructor(private http: HttpClient) {}
-
-  getTurnos(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  getTurnos(): Observable<TurnoBackend[]> {
+    return this.http.get<TurnoBackend[]>(this.apiUrl);
   }
 
-  tomarTurno(idTurno: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${idTurno}/tomar`, {});
+  getById(id: number): Observable<TurnoBackend> {
+    return this.http.get<TurnoBackend>(`${this.apiUrl}/${id}`);
   }
 
-  reasignarTurno(idTurno: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${idTurno}/reasignar`, {});
+  create(payload: TurnoPayload): Observable<TurnoBackend> {
+    return this.http.post<TurnoBackend>(this.apiUrl, payload);
+  }
+
+  update(id: number, payload: TurnoPayload): Observable<TurnoBackend> {
+    return this.http.put<TurnoBackend>(`${this.apiUrl}/${id}`, payload);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  tomarTurno(id: number): Observable<TurnoBackend> {
+    return this.http.patch<TurnoBackend>(`${this.apiUrl}/${id}/tomar`, {});
+  }
+
+  reasignarTurno(id: number): Observable<TurnoBackend> {
+    return this.http.patch<TurnoBackend>(`${this.apiUrl}/${id}/reasignar`, {});
   }
 }

@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificacionService {
 
-  private static readonly API_BASE = 'https://vigilapp-backend.onrender.com';
-  private apiUrl = NotificacionService.API_BASE + '/api/notificaciones';
+  private apiUrl = environment.apiUrl + '/api/notificaciones';
 
   constructor(private http: HttpClient) {}
 
