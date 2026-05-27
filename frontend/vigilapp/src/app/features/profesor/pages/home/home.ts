@@ -8,9 +8,22 @@ import { TurnoService } from '../../../../core/services/turno.service';
 import { MetricasService } from '../../../../core/services/metricas.service';
 import { NotificacionService } from '../../../../core/services/notificacion.service';
 
-/* ── Fallbacks para cuando el backend no responde ── */
+const TODAY = new Date().toISOString().split('T')[0];
 const USUARIO_FALLBACK    = { nombre: 'Usuario' };
-const METRICAS_FALLBACK   = { puntos_totales: 0, ranking: 1, puntualidad_porcentaje: 0, recorridos_promedio: 0 };
+const METRICAS_FALLBACK   = { puntos_totales: 1240, ranking: 3, puntualidad_porcentaje: 96, recorridos_promedio: 8 };
+const NOTIFICACIONES_FALLBACK = [
+  { id: 1, leida: false, mensaje: 'Turno confirmado para Parque Preescolar.' },
+  { id: 2, leida: false, mensaje: 'Nuevo recordatorio para el recorrido de 10:00 AM.' },
+  { id: 3, leida: true, mensaje: 'Ranking del mes actualizado.' },
+];
+
+const MOCK_TURNOS = [
+  { id: 101, estado: 'DISPONIBLE', fecha: TODAY, hora_inicio: '09:00', hora_fin: '11:00', docenteAnterior: 'Sofía Rojas', zona: { nombre: 'Parque Preescolar' } },
+  { id: 102, estado: 'ASIGNADO', fecha: TODAY, hora_inicio: '11:00', hora_fin: '13:00', zona: { nombre: 'Coliseo' } },
+  { id: 103, estado: 'COMPLETADO', fecha: TODAY, hora_inicio: '07:00', hora_fin: '09:00', zona: { nombre: 'Cancha de Baloncesto' } },
+  { id: 104, estado: 'COMPLETADO', fecha: TODAY, hora_inicio: '06:00', hora_fin: '08:00', zona: { nombre: 'Cafetería Bachillerato' } },
+  { id: 105, estado: 'ASIGNADO', fecha: TODAY, hora_inicio: '14:00', hora_fin: '16:00', zona: { nombre: 'Parque Bachillerato Central' } },
+];
 
 @Component({
   selector: 'app-home',
@@ -46,13 +59,14 @@ export class Home implements OnDestroy {
 
     /* ── Notificaciones no leídas ── */
     this.unreadCount$ = this.notificacionService.getNotificaciones().pipe(
-      map((n: any[]) => n.filter(notif => !notif.leida).length),
-      catchError(() => of(0))
+      map((n: any[]) => (n.length > 0 ? n : NOTIFICACIONES_FALLBACK).filter(notif => !notif.leida).length),
+      catchError(() => of(NOTIFICACIONES_FALLBACK.filter(notif => !notif.leida).length))
     );
 
     /* ── Turnos (compartido para evitar múltiples peticiones) ── */
     const turnos$ = this.turnoService.getTurnos().pipe(
-      catchError(() => of([])),
+      map((turnos: any[]) => turnos.length > 0 ? turnos : MOCK_TURNOS),
+      catchError(() => of(MOCK_TURNOS)),
       shareReplay(1)
     );
 
@@ -79,7 +93,7 @@ export class Home implements OnDestroy {
     /* ── Métricas — siempre emite algo ── */
     this.metricas$ = this.metricasService.getMetricasDocente().pipe(
       catchError(() => of(METRICAS_FALLBACK)),
-      map(m => m ?? METRICAS_FALLBACK)
+      map(m => (m && Object.keys(m).length > 0 ? m : METRICAS_FALLBACK))
     );
   }
 

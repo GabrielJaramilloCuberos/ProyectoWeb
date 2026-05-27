@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Observable, of, catchError, startWith, switchMap } from 'rxjs';
+import { Observable, of, catchError, map, startWith, switchMap } from 'rxjs';
 
 import { AdminService, Zone } from '../../services/admin.service';
 import { PageHeader } from '../../../../shared/ui/page-header/page-header';
 import { Modal } from '../../../../shared/ui/modal/modal';
 import { GlassCard } from '../../../../shared/ui/glass-card/glass-card';
+import { MOCK_ZONES } from '../../admin.mock-data';
 
 @Component({
   selector: 'admin-zones',
@@ -19,7 +20,10 @@ export class Zones {
 
   zones$: Observable<Zone[]> = this.adminService.refresh$.pipe(
     startWith(undefined as void),
-    switchMap(() => this.adminService.getZones().pipe(catchError(() => of<Zone[]>([]))))
+    switchMap(() => this.adminService.getZones().pipe(
+      map((zones: Zone[]) => zones.length > 0 ? zones : MOCK_ZONES),
+      catchError(() => of(MOCK_ZONES))
+    ))
   );
 
   isAddOpen = false;

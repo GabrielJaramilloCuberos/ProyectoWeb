@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, of } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 export interface Zone {
@@ -90,6 +91,7 @@ export const DEFAULT_CONFIG: SystemConfig = {
 @Injectable({ providedIn: 'root' })
 export class AdminService {
 
+  private platformId = inject(PLATFORM_ID);
   private apiUrl = environment.apiUrl + '/api/admin';
 
   private refreshSubject = new Subject<void>();
@@ -97,12 +99,17 @@ export class AdminService {
 
   constructor(private http: HttpClient) {}
 
+  private isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
+  }
+
   notifyChange(): void {
     this.refreshSubject.next();
   }
 
   /* ── Zones ── */
   getZones(): Observable<Zone[]> {
+    if (!this.isBrowser()) return of([]);
     return this.http.get<Zone[]>(`${this.apiUrl}/zones`);
   }
   addZone(zone: Omit<Zone, 'id'>): Observable<Zone> {
@@ -117,11 +124,13 @@ export class AdminService {
 
   /* ── Teachers ── */
   getTeachers(): Observable<Teacher[]> {
+    if (!this.isBrowser()) return of([]);
     return this.http.get<Teacher[]>(`${this.apiUrl}/teachers`);
   }
 
   /* ── Shifts ── */
   getShifts(): Observable<Shift[]> {
+    if (!this.isBrowser()) return of([]);
     return this.http.get<Shift[]>(`${this.apiUrl}/shifts`);
   }
   addShift(shift: Omit<Shift, 'id'>): Observable<Shift> {
@@ -133,6 +142,7 @@ export class AdminService {
 
   /* ── Config ── */
   getConfig(): Observable<SystemConfig> {
+    if (!this.isBrowser()) return of({ ...DEFAULT_CONFIG });
     return this.http.get<SystemConfig>(`${this.apiUrl}/config`);
   }
   updateConfig(config: SystemConfig): Observable<SystemConfig> {
@@ -144,12 +154,15 @@ export class AdminService {
 
   /* ── Reports ── */
   getAuditLogs(): Observable<AuditLog[]> {
+    if (!this.isBrowser()) return of([]);
     return this.http.get<AuditLog[]>(`${this.apiUrl}/audit-logs`);
   }
   getIncidents(): Observable<Incident[]> {
+    if (!this.isBrowser()) return of([]);
     return this.http.get<Incident[]>(`${this.apiUrl}/incidents`);
   }
   getLeaderboard(): Observable<LeaderboardEntry[]> {
+    if (!this.isBrowser()) return of([]);
     return this.http.get<LeaderboardEntry[]>(`${this.apiUrl}/leaderboard`);
   }
 }
