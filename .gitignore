@@ -21,9 +21,18 @@ pnpm-debug.log*
 dist/
 build/
 out/
+target/
 coverage/
 .cache/
 tmp/
 temp/
 
 *.sh
+*.class
+*.jar
+*.war
+
+# Gatling reports & simulation logs
+**/gatling/**/
+simulation.log
+lastRun.txt
