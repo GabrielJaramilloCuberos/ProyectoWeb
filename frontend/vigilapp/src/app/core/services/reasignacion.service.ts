@@ -5,8 +5,9 @@ import { environment } from '../../../environments/environment';
 
 export interface ReasignacionPayload {
   motivo: string;
-  fecha_propuesta: string; // ISO-8601, e.g. "2026-05-25T10:00:00"
-  estado: string;          // "PENDIENTE" | "APROBADA" | "RECHAZADA"
+  fecha_propuesta: string;  // ISO-8601, e.g. "2026-05-25T10:00:00"
+  fecha_respuesta?: string; // ISO-8601, opcional (presente cuando estado es APROBADA/RECHAZADA)
+  estado: string;           // "PENDIENTE" | "APROBADA" | "RECHAZADA"
   turno:            { id_turno: number };
   docenteOriginal:  { id_usuario: number };
   docentePropuesto: { id_usuario: number };
@@ -14,7 +15,6 @@ export interface ReasignacionPayload {
 
 export interface Reasignacion extends ReasignacionPayload {
   id_reasignacion: number;
-  fecha_respuesta?: string;
 }
 
 @Injectable({ providedIn: 'root' })
