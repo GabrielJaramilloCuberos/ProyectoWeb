@@ -1,9 +1,6 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist/vigilapp/browser",
-  "env": {
-    "VERCEL_ANALYTICS_ID": "@vercelanalytics"
-  },
   "rewrites": [
     {
       "source": "/api/:path*",
