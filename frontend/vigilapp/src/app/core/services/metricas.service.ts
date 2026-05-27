@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 })
 export class MetricasService {
 
-  private apiUrl = environment.apiUrl + '/api/metricas';
+  private apiUrl = environment.apiUrl + '/api/metricas-docente';
 
   constructor(private http: HttpClient) {}
 

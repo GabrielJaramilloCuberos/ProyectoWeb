@@ -5,6 +5,8 @@ import com.example.vigilapp.services.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -22,6 +24,14 @@ public class UsuarioController {
     public ResponseEntity<List<Usuario>> getAll() {
         List<Usuario> usuarios = usuarioService.getAll();
         return ResponseEntity.status(HttpStatus.OK).body(usuarios);
+    }
+
+    @GetMapping("/actual")
+    public ResponseEntity<Usuario> getActual() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Usuario usuario = usuarioService.findByEmail(email);
+        return ResponseEntity.status(HttpStatus.OK).body(usuario);
     }
 
     @GetMapping("/{id}")

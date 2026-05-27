@@ -4,6 +4,7 @@ import { forkJoin, Observable, map } from 'rxjs';
 import { TurnoService, TurnoBackend } from '../../core/services/turno.service';
 import { IncidenteService, Incidente } from '../../core/services/incidente.service';
 import { ZonaService, Zona } from '../../core/services/zona.service';
+import { CheckpointService, Checkpoint } from '../../core/services/checkpoint.service';
 import {
   CoordinatorIncident,
   CoordinatorShift,
@@ -37,6 +38,7 @@ export class CoordinatorService {
     private turnoService:     TurnoService,
     private incidenteService: IncidenteService,
     private zonaService:      ZonaService,
+    private checkpointService: CheckpointService,
   ) {}
 
   loadDashboard(): Observable<CoordinatorDashboardData> {
@@ -45,14 +47,15 @@ export class CoordinatorService {
       turnos:     this.turnoService.getTurnos(),
       incidentes: this.incidenteService.getIncidentes(),
       zonas:      this.zonaService.getZonas(),
+      checkpoints: this.checkpointService.getCheckpoints(),
     }).pipe(
-      map(({ turnos, incidentes, zonas }) => {
-        console.log('🟢 forkJoin completó', turnos, incidentes, zonas);
+      map(({ turnos, incidentes, zonas, checkpoints }) => {
+        console.log('🟢 forkJoin completó', turnos, incidentes, zonas, checkpoints);
         const today = new Date().toISOString().slice(0, 10);
 
         const shifts    = turnos.map(t => this.mapTurno(t));
         const incidents = incidentes.map(i => this.mapIncidente(i, turnos));
-        const zones     = zonas.map(z => this.mapZona(z, incidentes));
+        const zones     = zonas.map(z => this.mapZona(z, incidentes, checkpoints));
 
         const teacherMap = new Map<number, CoordinatorTeacher>();
         turnos.forEach(t => {
@@ -99,14 +102,18 @@ export class CoordinatorService {
     };
   }
 
-  private mapZona(z: Zona, incidentes: Incidente[]): CoordinatorZone {
+  private mapZona(z: Zona, incidentes: Incidente[], checkpoints: Checkpoint[]): CoordinatorZone {
     const count = incidentes.filter(i => i.zona?.id_zona === z.id_zona).length;
+    const zonaCheckpoints = checkpoints
+      .filter(cp => cp.zona.id_zona === z.id_zona && cp.activo)
+      .map(cp => cp.nombre);
+    
     return {
       id:          String(z.id_zona),
       name:        z.nombre,
       description: z.descripcion,
-      capacity:    0,
-      checkpoints: [],
+      capacity:    zonaCheckpoints.length,
+      checkpoints: zonaCheckpoints,
       intensidad:  Math.min(10, Math.max(1, count * 2)),
     };
   }

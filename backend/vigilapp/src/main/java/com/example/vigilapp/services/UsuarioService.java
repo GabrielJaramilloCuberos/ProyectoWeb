@@ -56,6 +56,11 @@ public class UsuarioService {
         usuarioRepository.delete(existing);
     }
 
+    public Usuario findByEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsuarioNotFoundException("Usuario no encontrado con email: " + email));
+    }
+
     private Rol resolveRol(Usuario usuario) {
         if (usuario.getRol() == null || usuario.getRol().getId_rol() == null) {
             throw new IllegalArgumentException("El rol es obligatorio y debe tener un id valido");
