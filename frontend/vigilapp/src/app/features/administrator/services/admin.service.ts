@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 export interface Zone {
   id: string;
@@ -89,7 +90,7 @@ export const DEFAULT_CONFIG: SystemConfig = {
 @Injectable({ providedIn: 'root' })
 export class AdminService {
 
-  private apiUrl = 'http://localhost:8080/api/admin';
+  private apiUrl = environment.apiUrl + '/api/admin';
 
   private refreshSubject = new Subject<void>();
   readonly refresh$: Observable<void> = this.refreshSubject.asObservable();

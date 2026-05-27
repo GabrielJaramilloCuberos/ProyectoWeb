@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface TurnoBackend {
   id_turno:               number;
@@ -38,7 +39,7 @@ export interface TurnoPayload {
 @Injectable({ providedIn: 'root' })
 export class TurnoService {
   private http   = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/turnos';
+  private apiUrl = environment.apiUrl + '/api/turnos';
 
   getTurnos(): Observable<TurnoBackend[]> {
     return this.http.get<TurnoBackend[]>(this.apiUrl);
