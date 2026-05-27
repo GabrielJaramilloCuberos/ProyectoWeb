@@ -17,11 +17,7 @@ public class MetricasDocenteService {
     }
 
     public List<MetricasDocente> getAll() {
-        List<MetricasDocente> metricas = metricasDocenteRepository.findAll();
-        if (metricas.isEmpty()) {
-            throw new MetricasDocenteNotFoundException("No se encontraron metricas docente");
-        }
-        return metricas;
+        return metricasDocenteRepository.findAll();
     }
 
     public MetricasDocente getById(Long id) {

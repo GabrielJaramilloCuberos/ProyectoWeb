@@ -17,11 +17,7 @@ public class RolService {
     }
 
     public List<Rol> getAll() {
-        List<Rol> roles = rolRepository.findAll();
-        if (roles.isEmpty()) {
-            throw new RolNotFoundException("No se encontraron roles");
-        }
-        return roles;
+        return rolRepository.findAll();
     }
 
     public Rol getById(Long id) {

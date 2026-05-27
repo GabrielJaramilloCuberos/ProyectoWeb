@@ -17,11 +17,7 @@ public class SeveridadService {
     }
 
     public List<Severidad> getAll() {
-        List<Severidad> severidades = severidadRepository.findAll();
-        if (severidades.isEmpty()) {
-            throw new SeveridadNotFoundException("No se encontraron severidades");
-        }
-        return severidades;
+        return severidadRepository.findAll();
     }
 
     public Severidad getById(Long id) {
