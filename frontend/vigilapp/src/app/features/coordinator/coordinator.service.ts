@@ -107,14 +107,15 @@ export class CoordinatorService {
     const zonaCheckpoints = checkpoints
       .filter(cp => cp.zona.id_zona === z.id_zona && cp.activo)
       .map(cp => cp.nombre);
-    
+
     return {
-      id:          String(z.id_zona),
-      name:        z.nombre,
-      description: z.descripcion,
-      capacity:    zonaCheckpoints.length,
-      checkpoints: zonaCheckpoints,
-      intensidad:  Math.min(10, Math.max(1, count * 2)),
+      id:            String(z.id_zona),
+      name:          z.nombre,
+      description:   z.descripcion,
+      capacity:      zonaCheckpoints.length,
+      checkpoints:   zonaCheckpoints,
+      intensidad:    Math.min(10, Math.max(1, count * 2)),
+      incidentCount: count,
     };
   }
 

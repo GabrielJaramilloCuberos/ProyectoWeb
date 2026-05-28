@@ -21,6 +21,7 @@ export type CoordinatorZone = {
   capacity: number;
   checkpoints: string[];
   intensidad?: number;
+  incidentCount?: number;
 };
 
 export type CoordinatorShift = {

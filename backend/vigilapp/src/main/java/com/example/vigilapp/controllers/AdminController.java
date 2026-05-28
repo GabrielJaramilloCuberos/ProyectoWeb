@@ -1,9 +1,11 @@
 package com.example.vigilapp.controllers;
 
+import com.example.vigilapp.entities.Configuracion;
 import com.example.vigilapp.entities.Incidente;
 import com.example.vigilapp.entities.Turno;
 import com.example.vigilapp.entities.Usuario;
 import com.example.vigilapp.entities.Zona;
+import com.example.vigilapp.services.ConfiguracionService;
 import com.example.vigilapp.services.IncidenteService;
 import com.example.vigilapp.services.TurnoService;
 import com.example.vigilapp.services.UsuarioService;
@@ -26,15 +28,18 @@ public class AdminController {
     private final TurnoService turnoService;
     private final UsuarioService usuarioService;
     private final IncidenteService incidenteService;
+    private final ConfiguracionService configuracionService;
 
     public AdminController(ZonaService zonaService,
                            TurnoService turnoService,
                            UsuarioService usuarioService,
-                           IncidenteService incidenteService) {
-        this.zonaService      = zonaService;
-        this.turnoService     = turnoService;
-        this.usuarioService   = usuarioService;
-        this.incidenteService = incidenteService;
+                           IncidenteService incidenteService,
+                           ConfiguracionService configuracionService) {
+        this.zonaService           = zonaService;
+        this.turnoService          = turnoService;
+        this.usuarioService        = usuarioService;
+        this.incidenteService      = incidenteService;
+        this.configuracionService  = configuracionService;
     }
 
     // ─────────────────────────────────────────
@@ -189,30 +194,20 @@ public class AdminController {
 
     @GetMapping("/config")
     public ResponseEntity<Map<String, Object>> getConfig() {
-        return ResponseEntity.ok(buildDefaultConfig());
+        Configuracion config = configuracionService.getConfig();
+        return ResponseEntity.ok(configuracionService.toMap(config));
     }
 
     @PutMapping("/config")
     public ResponseEntity<Map<String, Object>> updateConfig(@RequestBody Map<String, Object> body) {
-        return ResponseEntity.ok(body);
+        Configuracion config = configuracionService.updateConfig(body);
+        return ResponseEntity.ok(configuracionService.toMap(config));
     }
 
     @PostMapping("/config/reset")
     public ResponseEntity<Map<String, Object>> resetConfig() {
-        return ResponseEntity.ok(buildDefaultConfig());
-    }
-
-    private Map<String, Object> buildDefaultConfig() {
-        Map<String, Object> c = new LinkedHashMap<>();
-        c.put("shiftDuration",       30);
-        c.put("minPatrols",          2);
-        c.put("notificationMinutes", 15);
-        c.put("autoReassignMinutes", 10);
-        c.put("gamificationEnabled", true);
-        c.put("pointsPerShift",      100);
-        c.put("pointsPerPatrol",     25);
-        c.put("pointsPerReport",     50);
-        return c;
+        Configuracion config = configuracionService.resetConfig();
+        return ResponseEntity.ok(configuracionService.toMap(config));
     }
 
     // ─────────────────────────────────────────

@@ -1,8 +1,9 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, OnDestroy, PLATFORM_ID, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, PLATFORM_ID, SimpleChanges, ViewChild, inject } from '@angular/core';
 
 import { HEATMAP_POLYGONS } from '../../coordinator-zone-catalog';
 import { HeatmapColorLegend } from './heatmap-color-legend/heatmap-color-legend';
+import { CoordinatorZone } from '../../coordinator-home.models';
 
 type ZoneMapMode = 'satellite' | 'simple';
 
@@ -53,8 +54,9 @@ type HeatmapZone = {
     style: 'position: relative; z-index: 0;',
   },
 })
-export class HeatmapComponent implements AfterViewInit, OnDestroy {
+export class HeatmapComponent implements AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('mapContainer') private readonly mapContainer?: ElementRef<HTMLDivElement>;
+  @Input() zones: CoordinatorZone[] = [];
 
   private readonly platformId = inject(PLATFORM_ID);
   private readonly center: [number, number] = [4.7330, -74.0415];
@@ -64,14 +66,15 @@ export class HeatmapComponent implements AfterViewInit, OnDestroy {
 
   protected mapMode: ZoneMapMode = 'satellite';
 
-  private readonly zonasPolygon: HeatmapZone[] = HEATMAP_POLYGONS.map(zone => ({
-    nombre: zone.nombre,
-    accidentCount: zone.accidentCount,
-    puntos: zone.points,
-  }));
-
   private map: import('leaflet').Map | null = null;
   private polygons: any[] = [];
+  private mapReady = false;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['zones'] && this.mapReady) {
+      this.redrawPolygons();
+    }
+  }
 
   async ngAfterViewInit(): Promise<void> {
     if (!isPlatformBrowser(this.platformId) || !this.mapContainer) {
@@ -92,13 +95,33 @@ export class HeatmapComponent implements AfterViewInit, OnDestroy {
     });
 
     this.setBaseLayer(L, this.mapMode);
+    this.mapReady = true;
+    this.redrawPolygons();
+  }
 
-    // Crear polígonos de zonas de vigilancia
-    this.zonasPolygon.forEach((zona) => {
-      const color = this.getColorForAccidents(zona.accidentCount);
-      console.log(`Zona: ${zona.nombre}, Numero de accidentes: ${zona.accidentCount}, Color: ${color}`);
-      
-      const polygon = L.polygon(zona.puntos, {
+  private resolveAccidentCount(catalogName: string): number {
+    if (this.zones.length === 0) {
+      const catalog = HEATMAP_POLYGONS.find(p => p.nombre === catalogName);
+      return catalog?.accidentCount ?? 0;
+    }
+    const normalize = (s: string) => s.toLowerCase().trim();
+    const zone = this.zones.find(z => normalize(z.name) === normalize(catalogName));
+    return zone?.incidentCount ?? 0;
+  }
+
+  private redrawPolygons(): void {
+    if (!this.map || !this.leaflet) return;
+
+    this.polygons.forEach(p => p.remove());
+    this.polygons = [];
+
+    const L = this.leaflet;
+
+    HEATMAP_POLYGONS.forEach((zona) => {
+      const accidentCount = this.resolveAccidentCount(zona.nombre);
+      const color = this.getColorForAccidents(accidentCount);
+
+      const polygon = L.polygon(zona.points, {
         color,
         weight: 2,
         opacity: 0.85,
@@ -109,7 +132,7 @@ export class HeatmapComponent implements AfterViewInit, OnDestroy {
       polygon.bindPopup(`
         <div class="text-sm font-medium">
           <p class="font-bold text-base">${zona.nombre}</p>
-          <p class="text-xs text-gray-600 mt-1">Número de accidentes: <span class="font-semibold">${zona.accidentCount}</span></p>
+          <p class="text-xs text-gray-600 mt-1">Número de incidentes: <span class="font-semibold">${accidentCount}</span></p>
         </div>
       `);
 
@@ -136,59 +159,6 @@ export class HeatmapComponent implements AfterViewInit, OnDestroy {
 
     this.mapMode = this.mapMode === 'satellite' ? 'simple' : 'satellite';
     this.setBaseLayer(this.leaflet, this.mapMode);
-  }
-
-  public addZonePolygon(zona: HeatmapZone): void {
-    if (this.map) {
-      const leaflet = (window as any).L;
-      const color = this.getColorForAccidents(zona.accidentCount);
-
-      const polygon = leaflet.polygon(zona.puntos, {
-        color,
-        weight: 2,
-        opacity: 0.85,
-        fillColor: color,
-        fillOpacity: 0.45,
-      }).addTo(this.map);
-
-      polygon.bindPopup(`
-        <div class="text-sm font-medium">
-          <p class="font-bold text-base">${zona.nombre}</p>
-          <p class="text-xs text-gray-600 mt-1">Número de accidentes: <span class="font-semibold">${zona.accidentCount}</span></p>
-        </div>
-      `);
-
-      this.polygons.push(polygon);
-    }
-  }
-
-  public updateAllZonePolygons(newZones: HeatmapZone[]): void {
-    this.polygons.forEach(polygon => polygon.remove());
-    this.polygons = [];
-
-    if (this.map) {
-      const leaflet = (window as any).L;
-      newZones.forEach((zona) => {
-        const color = this.getColorForAccidents(zona.accidentCount);
-
-        const polygon = leaflet.polygon(zona.puntos, {
-          color,
-          weight: 2,
-          opacity: 0.85,
-          fillColor: color,
-          fillOpacity: 0.35,
-        }).addTo(this.map!);
-
-        polygon.bindPopup(`
-          <div class="text-sm font-medium">
-            <p class="font-bold text-base">${zona.nombre}</p>
-            <p class="text-xs text-gray-600 mt-1">Número de accidentes: <span class="font-semibold">${zona.accidentCount}</span></p>
-          </div>
-        `);
-
-        this.polygons.push(polygon);
-      });
-    }
   }
 
   private setBaseLayer(L: any, mode: ZoneMapMode): void {

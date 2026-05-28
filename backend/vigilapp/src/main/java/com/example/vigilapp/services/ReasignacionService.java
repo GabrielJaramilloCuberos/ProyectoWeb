@@ -6,6 +6,7 @@ import com.example.vigilapp.exception.ReasignacionNotFoundException;
 import com.example.vigilapp.exception.TurnoNotFoundException;
 import com.example.vigilapp.repositories.ReasignacionRepository;
 import com.example.vigilapp.repositories.TurnoRepository;
+import com.example.vigilapp.repositories.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +17,14 @@ public class ReasignacionService {
 
     private final ReasignacionRepository reasignacionRepository;
     private final TurnoRepository turnoRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public ReasignacionService(ReasignacionRepository reasignacionRepository, TurnoRepository turnoRepository) {
+    public ReasignacionService(ReasignacionRepository reasignacionRepository,
+                               TurnoRepository turnoRepository,
+                               UsuarioRepository usuarioRepository) {
         this.reasignacionRepository = reasignacionRepository;
-        this.turnoRepository = turnoRepository;
+        this.turnoRepository        = turnoRepository;
+        this.usuarioRepository      = usuarioRepository;
     }
 
     @Transactional(readOnly = true)
@@ -29,7 +34,7 @@ public class ReasignacionService {
 
     @Transactional(readOnly = true)
     public Reasignacion getById(Long id) {
-        return reasignacionRepository.findById(id)
+        return reasignacionRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new ReasignacionNotFoundException("Reasignacion no encontrada con id: " + id));
     }
 
@@ -49,16 +54,21 @@ public class ReasignacionService {
         return saved;
     }
 
+    @Transactional
     public Reasignacion update(Long id, Reasignacion reasignacion) {
         Reasignacion existing = getById(id);
         existing.setMotivo(reasignacion.getMotivo());
         existing.setFecha_propuesta(reasignacion.getFecha_propuesta());
         existing.setFecha_respuesta(reasignacion.getFecha_respuesta());
         existing.setEstado(reasignacion.getEstado());
-        existing.setTurno(reasignacion.getTurno());
-        existing.setDocenteOriginal(reasignacion.getDocenteOriginal());
-        existing.setDocentePropuesto(reasignacion.getDocentePropuesto());
-        return reasignacionRepository.save(existing);
+        if (reasignacion.getTurno() != null && reasignacion.getTurno().getId_turno() != null)
+            existing.setTurno(turnoRepository.getReferenceById(reasignacion.getTurno().getId_turno()));
+        if (reasignacion.getDocenteOriginal() != null && reasignacion.getDocenteOriginal().getId_usuario() != null)
+            existing.setDocenteOriginal(usuarioRepository.getReferenceById(reasignacion.getDocenteOriginal().getId_usuario()));
+        if (reasignacion.getDocentePropuesto() != null && reasignacion.getDocentePropuesto().getId_usuario() != null)
+            existing.setDocentePropuesto(usuarioRepository.getReferenceById(reasignacion.getDocentePropuesto().getId_usuario()));
+        reasignacionRepository.save(existing);
+        return getById(id);
     }
 
     public void delete(Long id) {
