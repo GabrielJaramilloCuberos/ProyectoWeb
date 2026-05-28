@@ -21,7 +21,7 @@ public class CheckinTurno {
     @NotBlank(message = "El método es obligatorio")
     private String metodo;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_turno", nullable = false)
     @NotNull(message = "El turno es obligatorio")
     private Turno turno;

@@ -4,6 +4,7 @@ import com.example.vigilapp.entities.MetricasDocente;
 import com.example.vigilapp.exception.MetricasDocenteNotFoundException;
 import com.example.vigilapp.repositories.MetricasDocenteRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,8 +17,9 @@ public class MetricasDocenteService {
         this.metricasDocenteRepository = metricasDocenteRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<MetricasDocente> getAll() {
-        return metricasDocenteRepository.findAll();
+        return metricasDocenteRepository.findAllWithRelations();
     }
 
     public MetricasDocente getById(Long id) {

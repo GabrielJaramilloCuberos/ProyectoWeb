@@ -20,7 +20,7 @@ public class Checkpoint {
     @NotBlank(message = "El código QR es obligatorio")
     private String codigo_qr;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_zona", nullable = false)
     @NotNull(message = "La zona es obligatoria")
     private Zona zona;

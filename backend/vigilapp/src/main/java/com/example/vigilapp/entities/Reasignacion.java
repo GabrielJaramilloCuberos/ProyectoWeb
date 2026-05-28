@@ -26,17 +26,17 @@ public class Reasignacion {
     @NotBlank(message = "El estado es obligatorio")
     private String estado;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_turno", nullable = false)
     @NotNull(message = "El turno es obligatorio")
     private Turno turno;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_docente_original", nullable = false)
     @NotNull(message = "El docente original es obligatorio")
     private Usuario docenteOriginal;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_docente_propuesto", nullable = false)
     @NotNull(message = "El docente propuesto es obligatorio")
     private Usuario docentePropuesto;

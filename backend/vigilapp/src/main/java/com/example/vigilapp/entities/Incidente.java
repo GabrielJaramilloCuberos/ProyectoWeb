@@ -21,22 +21,22 @@ public class Incidente {
     @NotBlank(message = "La descripción es obligatoria")
     private String descripcion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_turno", nullable = false)
     @NotNull(message = "El turno es obligatorio")
     private Turno turno;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_zona", nullable = false)
     @NotNull(message = "La zona es obligatoria")
     private Zona zona;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tipo", nullable = false)
     @NotNull(message = "El tipo de incidente es obligatorio")
     private TipoIncidente tipoIncidente;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_severidad", nullable = false)
     @NotNull(message = "La severidad es obligatoria")
     private Severidad severidad;

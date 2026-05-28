@@ -4,6 +4,7 @@ import com.example.vigilapp.entities.Checkpoint;
 import com.example.vigilapp.exception.CheckpointNotFoundException;
 import com.example.vigilapp.repositories.CheckpointRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,8 +17,9 @@ public class CheckpointService {
         this.checkpointRepository = checkpointRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Checkpoint> getAll() {
-        return checkpointRepository.findAll();
+        return checkpointRepository.findAllWithRelations();
     }
 
     public Checkpoint getById(Long id) {

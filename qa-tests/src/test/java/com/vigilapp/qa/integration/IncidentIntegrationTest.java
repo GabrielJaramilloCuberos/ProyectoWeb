@@ -76,7 +76,10 @@ class IncidentIntegrationTest extends BaseIntegrationTest {
         assertFalse(incidentes.isEmpty(), "La lista de incidentes no debe estar vacía");
 
         boolean found = incidentes.stream()
-            .anyMatch(i -> incidentId.equals(i.get("id_incidente")));
+            .anyMatch(i -> {
+                Object id = i.get("id_incidente");
+                return id != null && incidentId.equals(Long.valueOf(id.toString()));
+            });
         assertTrue(found, "El incidente creado debe aparecer en la lista global");
     }
 

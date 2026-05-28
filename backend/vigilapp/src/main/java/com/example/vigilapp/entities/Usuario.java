@@ -28,7 +28,7 @@ public class Usuario {
     @NotNull(message = "El estado es obligatorio")
     private Boolean estado;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_rol", nullable = false)
     @NotNull(message = "El rol es obligatorio")
     private Rol rol;

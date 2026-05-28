@@ -8,6 +8,7 @@ import com.example.vigilapp.repositories.RolRepository;
 import com.example.vigilapp.repositories.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,12 +27,14 @@ public class UsuarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional(readOnly = true)
     public List<Usuario> getAll() {
-        return usuarioRepository.findAll();
+        return usuarioRepository.findAllWithRelations();
     }
 
+    @Transactional(readOnly = true)
     public Usuario getById(Long id) {
-        return usuarioRepository.findById(id)
+        return usuarioRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new UsuarioNotFoundException("Usuario no encontrado con id: " + id));
     }
 
@@ -56,8 +59,9 @@ public class UsuarioService {
         usuarioRepository.delete(existing);
     }
 
+    @Transactional(readOnly = true)
     public Usuario findByEmail(String email) {
-        return usuarioRepository.findByEmail(email)
+        return usuarioRepository.findByEmailWithRol(email)
                 .orElseThrow(() -> new UsuarioNotFoundException("Usuario no encontrado con email: " + email));
     }
 

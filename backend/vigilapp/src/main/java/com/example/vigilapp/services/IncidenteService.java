@@ -4,6 +4,7 @@ import com.example.vigilapp.entities.Incidente;
 import com.example.vigilapp.exception.IncidenteNotFoundException;
 import com.example.vigilapp.repositories.IncidenteRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,12 +17,14 @@ public class IncidenteService {
         this.incidenteRepository = incidenteRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Incidente> getAll() {
-        return incidenteRepository.findAll();
+        return incidenteRepository.findAllWithRelations();
     }
 
+    @Transactional(readOnly = true)
     public Incidente getById(Long id) {
-        return incidenteRepository.findById(id)
+        return incidenteRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new IncidenteNotFoundException("Incidente no encontrado con id: " + id));
     }
 

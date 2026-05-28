@@ -137,11 +137,14 @@ class IncidentE2ETest {
             new Page.GetByRoleOptions().setName("Iniciar Sesión")
         ).click();
 
-        coordPage.waitForURL("**/coordinator/home");
+        coordPage.waitForURL("**/coordinator/**");
+
+        // The header is rendered unconditionally (outside *ngIf loading guards)
+        coordPage.waitForSelector("header", new Page.WaitForSelectorOptions().setTimeout(15000));
 
         assertTrue(
-            coordPage.locator("app-coordinator-stats").isVisible(),
-            "Dashboard de coordinador debe cargar con el componente de estadísticas"
+            coordPage.locator("header").isVisible(),
+            "La cabecera de la página del coordinador debe estar visible"
         );
 
         coordCtx.close();

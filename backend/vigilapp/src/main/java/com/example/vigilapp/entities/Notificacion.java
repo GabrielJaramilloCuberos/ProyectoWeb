@@ -27,7 +27,7 @@ public class Notificacion {
     @NotNull(message = "El estado de lectura es obligatorio")
     private Boolean leida;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
     @NotNull(message = "El usuario es obligatorio")
     private Usuario usuario;

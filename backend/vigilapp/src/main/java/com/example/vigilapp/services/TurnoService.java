@@ -4,6 +4,7 @@ import com.example.vigilapp.entities.Turno;
 import com.example.vigilapp.exception.TurnoNotFoundException;
 import com.example.vigilapp.repositories.TurnoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,12 +17,14 @@ public class TurnoService {
         this.turnoRepository = turnoRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Turno> getAll() {
-        return turnoRepository.findAll();
+        return turnoRepository.findAllWithRelations();
     }
 
+    @Transactional(readOnly = true)
     public Turno getById(Long id) {
-        return turnoRepository.findById(id)
+        return turnoRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new TurnoNotFoundException("Turno no encontrado con id: " + id));
     }
 

@@ -4,6 +4,7 @@ import com.example.vigilapp.entities.Recorrido;
 import com.example.vigilapp.exception.RecorridoNotFoundException;
 import com.example.vigilapp.repositories.RecorridoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,8 +17,9 @@ public class RecorridoService {
         this.recorridoRepository = recorridoRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Recorrido> getAll() {
-        return recorridoRepository.findAll();
+        return recorridoRepository.findAllWithRelations();
     }
 
     public Recorrido getById(Long id) {

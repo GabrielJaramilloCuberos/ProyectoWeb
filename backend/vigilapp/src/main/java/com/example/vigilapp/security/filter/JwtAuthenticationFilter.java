@@ -69,7 +69,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             FilterChain chain, Authentication authResult) throws IOException, ServletException {
 
         String username = authResult.getName();
-        Usuario usuario = usuarioRepository.findByEmail(username)
+        Usuario usuario = usuarioRepository.findByEmailWithRol(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con email: " + username));
         String role = usuario.getRol().getNombre();
 
@@ -89,9 +89,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         body.put("role", role);
         body.put("message", String.format("Hola %s has iniciado sesión con éxito", username));
 
-        response.getWriter().write(new ObjectMapper().writeValueAsString(body));
         response.setContentType(CONTENT_TYPE);
         response.setStatus(200);
+        response.getWriter().write(new ObjectMapper().writeValueAsString(body));
     }
 
     @Override
@@ -102,8 +102,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         body.put("message", "Error en la autenticación: username o password incorrectos");
         body.put("error", failed.getMessage());
 
-        response.getWriter().write(new ObjectMapper().writeValueAsString(body));
-        response.setStatus(403);
         response.setContentType(CONTENT_TYPE);
+        response.setStatus(403);
+        response.getWriter().write(new ObjectMapper().writeValueAsString(body));
     }
 }

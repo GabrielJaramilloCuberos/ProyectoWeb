@@ -31,12 +31,12 @@ public class Turno {
     @NotNull
     private Integer limpieza_calificacion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_docente", nullable = false)
     @NotNull(message = "El docente es obligatorio")
     private Usuario docente;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_zona", nullable = false)
     @NotNull(message = "La zona es obligatoria")
     private Zona zona;

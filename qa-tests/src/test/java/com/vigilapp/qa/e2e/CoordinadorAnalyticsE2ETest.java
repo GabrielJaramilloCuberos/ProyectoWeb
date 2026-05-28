@@ -105,14 +105,14 @@ class CoordinadorAnalyticsE2ETest {
             new Page.GetByRoleOptions().setName("Iniciar Sesión")
         ).click();
 
-        // Esperar cualquier ruta de coordinador tras el login
-        page.waitForURL("**/coordinator/**");
+        // Login navigates directly to /coordinator/dashboard
+        page.waitForURL("**/coordinator/dashboard");
 
         // ────────────────────────────────────────────────
-        // STEP 2: Navegar al dashboard y verificar acciones principales
+        // STEP 2: Verificar acciones principales del dashboard
         // ────────────────────────────────────────────────
-        page.navigate(FRONTEND_URL + "/coordinator/dashboard");
-        page.waitForLoadState();
+        // Wait for the action cards to render (forkJoin with 4 APIs must complete)
+        page.waitForSelector("h3:has-text('Monitoreo en Vivo')", new Page.WaitForSelectorOptions().setTimeout(30000));
 
         Locator monitoreoBtn = page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName("Monitoreo en Vivo"));
@@ -166,11 +166,10 @@ class CoordinadorAnalyticsE2ETest {
         // STEP 5: Regresar al dashboard y cerrar sesión
         // ────────────────────────────────────────────────
         page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("←")).click();
-        page.waitForURL("**/coordinator/**");
+        page.waitForURL("**/coordinator/dashboard");
 
-        page.navigate(FRONTEND_URL + "/coordinator/dashboard");
-        page.waitForLoadState();
-
+        // Sign out button is in the dashboard header
+        page.waitForSelector("button:has-text('Cerrar sesión')", new Page.WaitForSelectorOptions().setTimeout(10000));
         page.getByRole(AriaRole.BUTTON,
             new Page.GetByRoleOptions().setName("Cerrar sesión")
         ).click();

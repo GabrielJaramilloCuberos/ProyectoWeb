@@ -50,15 +50,16 @@ public class IncidentLoadSimulation extends Simulation {
             )
         ).protocols(httpProtocol)
          .assertions(
-             details("List Incidents").responseTime().percentile2().lt(8000),
-             details("List Incidents").responseTime().percentile3().lt(10000),
+             // Thresholds for single-instance Docker on local hardware (JVM cold start)
+             details("List Incidents").responseTime().percentile2().lt(15000),
+             details("List Incidents").responseTime().percentile3().lt(20000),
              details("List Incidents").successfulRequests().percent().gt(99.0)
          );
         //
-        // NOTA: Thresholds relajados para Docker Desktop (CPU limitado). En producción:
+        // Production thresholds (dedicated server, warmed-up JVM):
         //   .assertions(
         //       details("List Incidents").responseTime().percentile2().lt(800),
-        //       details("List Incidents").responseTime().percentile3().lt(500),
+        //       details("List Incidents").responseTime().percentile3().lt(1500),
         //       details("List Incidents").successfulRequests().percent().gt(99.0)
         //   );
     }

@@ -29,7 +29,7 @@ public class MetricasDocente {
     @NotNull(message = "Los puntos totales son obligatorios")
     private Integer puntos_totales;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_docente", nullable = false)
     @NotNull(message = "El docente es obligatorio")
     private Usuario docente;

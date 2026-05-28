@@ -22,10 +22,12 @@ public class ReasignacionService {
         this.turnoRepository = turnoRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Reasignacion> getAll() {
-        return reasignacionRepository.findAll();
+        return reasignacionRepository.findAllWithRelations();
     }
 
+    @Transactional(readOnly = true)
     public Reasignacion getById(Long id) {
         return reasignacionRepository.findById(id)
                 .orElseThrow(() -> new ReasignacionNotFoundException("Reasignacion no encontrada con id: " + id));

@@ -17,12 +17,12 @@ public class Recorrido {
     @NotNull(message = "La fecha y hora es obligatoria")
     private LocalDateTime fecha_hora;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_turno", nullable = false)
     @NotNull(message = "El turno es obligatorio")
     private Turno turno;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_checkpoint", nullable = false)
     @NotNull(message = "El checkpoint es obligatorio")
     private Checkpoint checkpoint;

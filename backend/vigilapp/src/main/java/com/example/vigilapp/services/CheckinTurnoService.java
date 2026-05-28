@@ -4,6 +4,7 @@ import com.example.vigilapp.entities.CheckinTurno;
 import com.example.vigilapp.exception.CheckinTurnoNotFoundException;
 import com.example.vigilapp.repositories.CheckinTurnoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,8 +17,9 @@ public class CheckinTurnoService {
         this.checkinTurnoRepository = checkinTurnoRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<CheckinTurno> getAll() {
-        return checkinTurnoRepository.findAll();
+        return checkinTurnoRepository.findAllWithRelations();
     }
 
     public CheckinTurno getById(Long id) {

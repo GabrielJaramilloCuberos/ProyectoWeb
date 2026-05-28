@@ -4,6 +4,7 @@ import com.example.vigilapp.entities.Notificacion;
 import com.example.vigilapp.exception.NotificacionNotFoundException;
 import com.example.vigilapp.repositories.NotificacionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,8 +17,9 @@ public class NotificacionService {
         this.notificacionRepository = notificacionRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Notificacion> getAll() {
-        return notificacionRepository.findAll();
+        return notificacionRepository.findAllWithRelations();
     }
 
     public Notificacion getById(Long id) {
