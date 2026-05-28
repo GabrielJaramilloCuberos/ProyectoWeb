@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestInstance;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -21,9 +22,14 @@ import java.util.Map;
 public abstract class BaseIntegrationTest {
 
     private static final int BACKEND_PORT = 8080;
+    private static final String POSTGRES_ALIAS = "postgres-db";
+
+    private static final Network network = Network.newNetwork();
 
     private static final PostgreSQLContainer<?> postgres =
         new PostgreSQLContainer<>("postgres:15-alpine")
+            .withNetwork(network)
+            .withNetworkAliases(POSTGRES_ALIAS)
             .withDatabaseName("vigilapp_db")
             .withCopyFileToContainer(
                 MountableFile.forClasspathResource("init.sql"),
@@ -32,11 +38,13 @@ public abstract class BaseIntegrationTest {
 
     private static final GenericContainer<?> backend =
         new GenericContainer<>("vigilapp-backend:latest")
+            .withNetwork(network)
             .withExposedPorts(BACKEND_PORT)
             .withEnv("SPRING_JPA_HIBERNATE_DDL_AUTO", "update")
             .withEnv("SPRING_JPA_SHOW_SQL", "false")
             .withEnv("PORT", String.valueOf(BACKEND_PORT))
-            .waitingFor(Wait.forHttp("/actuator/health").forStatusCode(200))
+            // /actuator/health returns 403 (Spring Security); wait for the startup log instead
+            .waitingFor(Wait.forLogMessage(".*Started VigilappApplication.*\\n", 1))
             .withStartupTimeout(java.time.Duration.ofMinutes(5));
 
     protected static String backendBaseUrl;
@@ -45,8 +53,11 @@ public abstract class BaseIntegrationTest {
     void startInfrastructure() {
         postgres.start();
 
+        // Use the internal network alias and container port so the backend container
+        // can reach Postgres via the shared Docker network (localhost would resolve
+        // to the backend container itself, not the host).
         backend.withEnv("SPRING_DATASOURCE_URL",
-            "jdbc:postgresql://" + postgres.getHost() + ":" + postgres.getMappedPort(5432) + "/vigilapp_db");
+            "jdbc:postgresql://" + POSTGRES_ALIAS + ":5432/vigilapp_db");
         backend.withEnv("DB_USER", postgres.getUsername());
         backend.withEnv("DB_PASSWORD", postgres.getPassword());
         backend.start();
